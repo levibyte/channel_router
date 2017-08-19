@@ -3,27 +3,9 @@
 #include <vector>
 #include <map>
 #include <list>
+#include <string>
 
-class ZNet;
-
-class ZRender
-{
-
-  public:
-	ZRender() {
-	  
-	}
-
-	void* get_render() { return m_render; }
-	
-	void draw_net(const ZNet& n) {
-	  //draw_trunk(n);
-	  //draw_segments(n);    
-	}
-  
-  private:
-	void* m_render;
-};
+#include "renderer.h"
 
 
 enum ZTermOrientation { z_upper_row, z_lower_row };
@@ -32,6 +14,11 @@ class ZTerm
 {
     public:
 	    ZTerm(unsigned int col,ZTermOrientation orient):m_colnum(col),m_orient(m_orient) {
+	    }
+	    
+	    void draw() {
+	      
+	      
 	    }
       
     private:
@@ -47,6 +34,10 @@ class ZNet {
     
     public:
 	  //get_terms()
+	  ZNet (const char* str):m_name(str),m_track_num(0) { 
+	    
+	  }
+	  
 	  void add_term(unsigned int c, ZTermOrientation o) {
 	      ZTerm t(c,o);
 	    
@@ -57,31 +48,61 @@ class ZNet {
     private:
 	  std::list<ZTerm*> terms;
 	  unsigned int m_track_num;//std::list<>
-      
+	  std::string m_name;
 };
 
 
 
+class ZChannelRouter {
+
+  public:
+	
+    ZChannelRouter():maxtracks(6) {
+	    ZNet a("A"),b("B"),c("C");
+	    a.add_term(0,z_upper_row);
+	    a.add_term(2,z_upper_row);
+	    a.assign_track(1);
+	    
+	    b.add_term(1,z_upper_row);
+	    b.add_term(0,z_lower_row);
+	    b.assign_track(2);
+	    
+	    c.add_term(3,z_upper_row);
+	    c.add_term(1,z_lower_row);
+	    c.add_term(2,z_lower_row);
+	    c.assign_track(3);
+	}
+	
+	void route() {
+	  
+	  
+	}
+	
+	void draw_terms() {
+	  // foreach net, foreach term,
+	  t.draw();
+	}
+	
+	void draw_nets() {
+	  
+	}
+	
+  
+  private:
+	 std::map<ZNet,unsigned int> m_net2track;
+	 unsigned int maxtracks;
+  
+};
+
+
 int main()
 {
-    ZNet a,b,c;
-    a.add_term(0,z_upper_row);
-    a.add_term(2,z_upper_row);
-    a.assign_track(1);
+    ZRender renderer;
+    ZChannelRouter router(renderer);
     
-    b.add_term(1,z_upper_row);
-    b.add_term(0,z_lower_row);
-    b.assign_track(2);
-    
-    c.add_term(3,z_upper_row);
-    c.add_term(1,z_lower_row);
-    c.add_term(2,z_lower_row);
-    c.assign_track(3);
-    
-    ZRender r;
-    r.draw_net(a);
-    r.draw_net(b);
-    r.draw_net(c);
+    router.draw_terms()
+    router.route();
+    router.draw_nets()
     
   
 }
