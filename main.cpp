@@ -11,13 +11,8 @@ int main( int argc, char* args[] )
 	ZChannelRouter router;
 	ZInterLayer il(renderer,router);
 
-	//il.draw_terms();
-	//router.route();
-	//il.draw_routed_segments();
-
     
         unsigned int lastTime = 0, currentTime;
-        //SDL_RenderSetScale(gRenderer,6.0,6.0);
 
 	SDL_Event e;
 	bool quit = false;
@@ -39,7 +34,7 @@ int main( int argc, char* args[] )
 		    } 
 		    
 		    il.draw();
-		    //renderer.draw_line(0,0,10,10);
+		    //renderer.draw_rect(10,10,10,10);
 		    lastTime = currentTime;  
 		}
         }

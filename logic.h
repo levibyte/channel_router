@@ -10,14 +10,18 @@
 
 #include "renderer.h"
 
-enum ZTermOrientation { z_upper_row, z_lower_row };
+enum ZTermOrientation { z_lower_row = 0, z_upper_row = 1  };
 
 class ZTerm
 {
     public:
-	    ZTerm(unsigned int col,ZTermOrientation orient):m_colnum(col),m_orient(m_orient) {
-	    }
-	          
+	    ZTerm(unsigned int col,ZTermOrientation orient):m_colnum(col),m_orient(orient) {
+                //std::cout << m_
+            }
+	         
+	         
+	    unsigned int col() { return m_colnum; }
+	    unsigned int row() { return m_orient; }
     private:
 	    unsigned int m_colnum;
 	    ZTermOrientation m_orient;
@@ -27,7 +31,8 @@ class ZTerm
 };
 
 
-class ZNet {
+class ZNet 
+{
     
     public:
 	  //get_terms()
@@ -36,21 +41,26 @@ class ZNet {
 	  }
 	  
 	  void add_term(unsigned int c, ZTermOrientation o) {
-	      ZTerm t(c,o);
+	      ZTerm* t = new ZTerm(c,o);
 	      terms.push_back(t);
 	  }
 	  
+	  std::list<ZTerm*> get_terms() {
+              return terms;
+          }
 	  
+	  std::string get_name() { return m_name; }
     private:
 	  //std::list<ZTerm*> terms;
 	  
-	  std::list<ZTerm> terms;
+	  std::list<ZTerm*> terms;
 	  std::string m_name;
 };
 
 
 
-class ZChannelRouter {
+class ZChannelRouter
+{
 
   public:
 	
@@ -79,6 +89,16 @@ class ZChannelRouter {
 	    assign_net_to_track(c,3);
 	}
 	
+	//FIXME returning private data!
+	std::list<ZNet*> get_nets() {
+            std::list<ZNet*> z;
+            z.push_back(a);
+            z.push_back(b);
+            z.push_back(c);
+            
+          return z;
+        }
+        
   
   private:
 	 std::map<ZNet*,unsigned int> m_net2track;
@@ -89,6 +109,10 @@ class ZChannelRouter {
 	 ZNet* c;
 };
 
+
+
+
+
 class ZInterLayer {
   
   public:
@@ -98,14 +122,35 @@ class ZInterLayer {
 	 
 	 
 	 void draw() {
-	    m_renderer.draw_line(0,0,50,50);
+              std::list<ZNet*> nets = m_router.get_nets();
+              std::list<ZNet*>::iterator i; 
+              for(i=nets.begin();i!=nets.end();++i) 
+                draw_individual_net(*i);  
+              
+              m_renderer.refresh();
 	  }
+	  
+	  void draw_individual_net( ZNet* net) {
+              m_renderer.pick_color_from_name(net->get_name());
+              draw_terms(net->get_terms());
+              //if ( m_router.is_done() ) 
+                //draw_net(net);
+          }
 	 
-	 void draw_terms() {
-	      //router->get_nets();
-	      //net->get_terms();
-	      //m_renderer->draw_square(t.row,t.orient,t.row+5,t.orient+5);
-	 }
+          void draw_terms(const std::list<ZTerm*>& terms) {
+              std::list<ZTerm*>::const_iterator j; 
+              for(j=terms.begin();j!=terms.end();++j) 
+                draw_term(*j);
+          }
+
+          
+          void draw_term(ZTerm* t) {
+            //std::cout << " drawrect " <<  t->col() << "---" <<  t->row() << std::endl;
+            m_renderer.draw_rect(20*t->col()+20,100*t->row()+20, 10, 10);
+            //m_renderer->draw_text(t.row,)
+          }
+
+	 
 	 
 	 void draw_routed_segments() {
 	      //draw_terms();
