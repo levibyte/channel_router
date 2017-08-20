@@ -3,4 +3,4 @@ INCLS=-I ./deps/SDL2/include
 
 default:
 	rm -rf ztest
-	g++ -Wfatal-errors  test.cpp  $(LIBS) $(INCLS) -g  -lpthread -ldl -o ztest
+	g++ -Wfatal-errors main.cpp $(LIBS) $(INCLS) -g  -ldl -lrt -o ztest
