@@ -13,7 +13,6 @@ int main( int argc, char* args[] )
 	ZInterLayer il(renderer,router);
 
 	
-	
         unsigned int lastTime = 0, currentTime;
 
 	SDL_Event e;

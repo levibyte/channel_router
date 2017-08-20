@@ -37,15 +37,27 @@ class ZNet
     public:
 	  //get_terms()
 	  ZNet (const char* str):m_name(str) { 
+	      m_farest_term = 0;
+	      m_closest_term = 0;
+	      is_first_term = true;
 	    
 	  }
 	  
 	  ZTerm* add_term(unsigned int c, ZTermOrientation o) {
+	      std::cout << "Nearest:" << m_closest_term<< " Farest:" << m_farest_term << std::endl;
 	      ZTerm* t = new ZTerm(c,o);
 	      terms.push_back(t);
-	      if (m_farest_term && c > m_farest_term->col()) m_farest_term = t;
-	      if (t!=m_farest_term && m_closest_term && c < m_closest_term->col()) m_closest_term = t;
-	    
+	      
+	      if ( is_first_term ) {
+		m_closest_term = t;
+		m_farest_term = t;
+		is_first_term = false;
+	        return t;
+	      }
+	      
+	      if ( m_closest_term && c < m_closest_term->col()) m_closest_term = t;
+	      if ( m_farest_term && c > m_farest_term->col()) m_farest_term = t;
+	      
 	      return t;
 	  }
 	  
@@ -69,6 +81,7 @@ class ZNet
 	  //std::list<ZTerm*> terms;
 	  ZTerm* m_farest_term;
 	  ZTerm* m_closest_term;
+	  bool is_first_term;
 	  
 	  std::list<ZTerm*> terms;
 	  std::string m_name;
@@ -168,8 +181,9 @@ class ZInterLayer {
 
 	  void draw_tracks() {
 	          //router.get_max_tracks_num;
-		  //for(unsigned int i=5;i>0;i--) 
-		    //m_renderer.draw_line(20,10*i+50,20+200,10*i+50);
+		  m_renderer.set_drawing_color(255,0,0);
+		  for(unsigned int i=5;i>0;i--) 
+		    m_renderer.draw_line(0,10*i+50,20+300,10*i+50);
 	  }
 	  
 	  void draw_nets() {
@@ -209,10 +223,13 @@ class ZInterLayer {
 	      unsigned int c1 = n->get_closest_term()->col();
 	      unsigned int c2 = n->get_farest_term()->col();
 
-	      m_renderer.set_color(fixme[n].r,fixme[n].g,fixme[n].b);
-	      
+	      m_renderer.set_drawing_color(fixme[n].r,fixme[n].g,fixme[n].b);
+	      //m_renderer.draw_line(0,10*i+50,20+300,10*i+50);
+
 	      std::cout << "Net:" << n->get_name() << " track:" << t << " " << c1 << " " << c2 << std::endl;
-	      m_renderer.draw_line(20*c1,10*t+50,20*c2+200,10*t+50);
+	      //20*t->col()+20,100*t->row()+20
+	      
+	      m_renderer.draw_line(20*c1+20,10*t+50,20*c2+20,10*t+50);
 	  }
 
   private:
@@ -233,7 +250,7 @@ class ZInterLayer {
             if ( fixme.find(n) == fixme.end() ) 
             fixme[n]=z_color;
             
-            m_renderer.set_color(fixme[n].r,fixme[n].g,fixme[n].b);
+            m_renderer.set_drawing_color(fixme[n].r,fixme[n].g,fixme[n].b);
           
         }
 

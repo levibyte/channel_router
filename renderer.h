@@ -29,7 +29,7 @@ class ZRender
 	    //draw_circle();
 	}
 	
-	void set_color(int r, int g, int b) {
+	void set_drawing_color(int r, int g, int b) {
             SDL_SetRenderDrawColor(m_render,r,g,b,255);
         }
         
@@ -154,8 +154,8 @@ class ZRender
 	      //SDL_RenderClear( m_render );
 	      //SDL_SetRenderDrawColor(m_render, 255,0,0,255 );
 	      SDL_RenderDrawLine(m_render,x1,y1,x2,y2);
-	      SDL_SetRenderDrawColor( m_render, 0xFF, 0xFF, 0xFF, 0xFF );
-	      SDL_RenderPresent( m_render );
+	      //SDL_SetRenderDrawColor( m_render, 0xFF, 0xFF, 0xFF, 0xFF );
+	      //SDL_RenderPresent( m_render );
 	  }
 	  
 	  void refresh() {
