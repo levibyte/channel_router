@@ -3,8 +3,11 @@
 
 #include <cassert>
 #include <iostream>
+#include <string>
+#include <map>
 
 #include <SDL.h>
+
 
 
 
@@ -26,24 +29,15 @@ class ZRender
 	    //draw_circle();
 	}
 	
-	void pick_color_from_name(std::srtring n) {
-            SDL_Color z_color;
-            z_color.r = rand()%255;
-            z_color.g = rand()%255;
-            z_color.b = rand()%255;
-            z_color.a = 255;
-            
-            if ( fixme.find(n) != fixme.end() ) 
-            fixme[n]=z_color;
-            
-            SDL_SetRenderDrawColor(m_render, rand()%255,rand()%255,rand()%255,255 );
-          
+	void set_color(int r, int g, int b) {
+            SDL_SetRenderDrawColor(m_render,r,g,b,255);
         }
         
         void draw_rect(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2) {
           SDL_Rect rectToDraw = {x1,y1,x2,y2};
           //std::cout << rectToDraw.x << " " << rectToDraw.y << " " << rectToDraw.x+rectToDraw.w << " " << rectToDraw.y+rectToDraw.h << " " << std::endl;   
           SDL_RenderDrawRect(m_render,&rectToDraw);
+	  SDL_RenderFillRect(m_render, &rectToDraw);
           //SDL_RenderPresent( m_render );
            
         }
@@ -52,7 +46,6 @@ class ZRender
 
 	SDL_Window* m_window;
 	SDL_Renderer* m_render;
-        map<std::string, SDL_Color> fixme;
 
 	bool init(const char* title)
 	{
@@ -159,7 +152,7 @@ class ZRender
 	      //assert(0);
 	      //std::cout << "draw line" << std::endl;
 	      //SDL_RenderClear( m_render );
-	      SDL_SetRenderDrawColor(m_render, 255,0,0,255 );
+	      //SDL_SetRenderDrawColor(m_render, 255,0,0,255 );
 	      SDL_RenderDrawLine(m_render,x1,y1,x2,y2);
 	      SDL_SetRenderDrawColor( m_render, 0xFF, 0xFF, 0xFF, 0xFF );
 	      SDL_RenderPresent( m_render );

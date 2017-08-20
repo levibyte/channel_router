@@ -9,9 +9,11 @@ int main( int argc, char* args[] )
 
 	ZRender renderer("ChannelRouter");
 	ZChannelRouter router;
+	router.route();
 	ZInterLayer il(renderer,router);
 
-    
+	
+	
         unsigned int lastTime = 0, currentTime;
 
 	SDL_Event e;
