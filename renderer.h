@@ -25,14 +25,26 @@ class ZRender
 
 	//void* get_render() { return m_render; }
 	
-	void draw_point() { 
-	    //draw_circle();
+	void draw_point(unsigned int x, unsigned int y, unsigned int radius) { 
+          SDL_Point center;
+          center.x = x;
+          center.y = y;
+          draw_circle(center,radius);
+	  
 	}
 	
 	void set_drawing_color(int r, int g, int b) {
             SDL_SetRenderDrawColor(m_render,r,g,b,255);
         }
         
+        void draw_square(unsigned int x, unsigned int y, unsigned int delta) {
+          SDL_Rect rectToDraw = {x-delta,y-delta,2*delta,2*delta};
+          //std::cout << rectToDraw.x << " " << rectToDraw.y << " " << rectToDraw.x+rectToDraw.w << " " << rectToDraw.y+rectToDraw.h << " " << std::endl;   
+          SDL_RenderDrawRect(m_render,&rectToDraw);
+          SDL_RenderFillRect(m_render, &rectToDraw);
+        }  
+        
+        /*
         void draw_rect(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2) {
           SDL_Rect rectToDraw = {x1,y1,x2,y2};
           //std::cout << rectToDraw.x << " " << rectToDraw.y << " " << rectToDraw.x+rectToDraw.w << " " << rectToDraw.y+rectToDraw.h << " " << std::endl;   
@@ -40,7 +52,7 @@ class ZRender
 	  SDL_RenderFillRect(m_render, &rectToDraw);
           //SDL_RenderPresent( m_render );
            
-        }
+        }*/
   
   //private:
 
@@ -167,10 +179,10 @@ class ZRender
           }
 	  
 
-	  void draw_circle(const SDL_Point& center, int radius, SDL_Color c)//, SDL_Color color)
+	  void draw_circle(const SDL_Point& center, int radius)//, SDL_Color color)
 	  {
 	      //std::cout << "circle " << center.x << " " << center.y << std::endl;
-	      SDL_SetRenderDrawColor(m_render, c.r,c.g,c.b,c.a);
+	      //SDL_SetRenderDrawColor(m_render, c.r,c.g,c.b,c.a);
 	      for (int w = 0; w < radius * 2; w++)
 	      {
 		  for (int h = 0; h < radius * 2; h++)
@@ -183,7 +195,7 @@ class ZRender
 		      }
 		  }
 	      }
-	      SDL_SetRenderDrawColor(m_render, 255,0,0,255 );
+	      //SDL_SetRenderDrawColor(m_render, 255,0,0,255 );
 	  }
 
   

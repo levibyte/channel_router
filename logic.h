@@ -10,22 +10,24 @@
 
 #include "renderer.h"
 
-enum ZTermOrientation { z_lower_row = 1, z_upper_row = 0  };
+enum ZTermOrientation { z_lower_row = 6, z_upper_row = 0  };
+
+class ZNet;
 
 class ZTerm
 {
     public:
-	    ZTerm(unsigned int col,ZTermOrientation orient):m_colnum(col),m_orient(orient) {
+	    ZTerm(unsigned int col,ZTermOrientation orient,ZNet* net):m_colnum(col),m_orient(orient),m_owner_net(net) {
                 //std::cout << m_
             }
 	         
-	         
+	    ZNet* net() { return  m_owner_net; }     
 	    unsigned int col() { return m_colnum; }
 	    unsigned int row() { return m_orient; }
     private:
 	    unsigned int m_colnum;
 	    ZTermOrientation m_orient;
-	    
+	    ZNet* m_owner_net;
 	    //unsigned int x;
 	    //unsigned int y;
 };
@@ -44,8 +46,8 @@ class ZNet
 	  }
 	  
 	  ZTerm* add_term(unsigned int c, ZTermOrientation o) {
-	      std::cout << "Nearest:" << m_closest_term<< " Farest:" << m_farest_term << std::endl;
-	      ZTerm* t = new ZTerm(c,o);
+	      //std::cout << "Nearest:" << m_closest_term<< " Farest:" << m_farest_term << std::endl;
+	      ZTerm* t = new ZTerm(c,o,this);
 	      terms.push_back(t);
 	      
 	      if ( is_first_term ) {
@@ -79,7 +81,8 @@ class ZNet
 	  std::string get_name() { return m_name; }
     private:
 	  //std::list<ZTerm*> terms;
-	  ZTerm* m_farest_term;
+	 
+          ZTerm* m_farest_term;
 	  ZTerm* m_closest_term;
 	  bool is_first_term;
 	  
@@ -183,7 +186,7 @@ class ZInterLayer {
 	          //router.get_max_tracks_num;
 		  m_renderer.set_drawing_color(255,0,0);
 		  for(unsigned int i=5;i>0;i--) 
-		    m_renderer.draw_line(0,10*i+50,20+300,10*i+50);
+		    m_renderer.draw_line(0,row_to_y(i),400,row_to_y(i));
 	  }
 	  
 	  void draw_nets() {
@@ -202,20 +205,24 @@ class ZInterLayer {
 	 
           void draw_terms(const std::list<ZTerm*>& terms) {
               std::list<ZTerm*>::const_iterator j; 
-              for(j=terms.begin();j!=terms.end();++j) 
+              for(j=terms.begin();j!=terms.end();++j) {
                 draw_term(*j);
+                draw_extensions(*j);
+              }
           }
 
           
           void draw_term(ZTerm* t) {
             //std::cout << " drawrect " <<  t->col() << "---" <<  t->row() << std::endl;
-            m_renderer.draw_rect(20*t->col()+20,100*t->row()+20, 10, 10);
+            //m_renderer.draw_rect(20*t->col()+20,100*t->row()+20, 10, 10);
+            m_renderer.draw_square(col_to_x(t->col()),row_to_y(t->row()),10);
             //m_renderer->draw_text(t.row,)
           }
 
 	  void draw_routed_segments(ZNet* n) {
 	      draw_net_trunk_on_track(n);
-	      //draw_extensions();
+	      //draw_extensions(n);
+              //draw_intersection_points();
 	  }
 	  
 	  void draw_net_trunk_on_track(ZNet* n) {
@@ -226,40 +233,63 @@ class ZInterLayer {
 	      m_renderer.set_drawing_color(fixme[n].r,fixme[n].g,fixme[n].b);
 	      //m_renderer.draw_line(0,10*i+50,20+300,10*i+50);
 
-	      std::cout << "Net:" << n->get_name() << " track:" << t << " " << c1 << " " << c2 << std::endl;
+	      //std::cout << "Net:" << n->get_name() << " track:" << t << " " << c1 << " " << c2 << std::endl;
 	      //20*t->col()+20,100*t->row()+20
 	      
-	      m_renderer.draw_line(20*c1+20,10*t+50,20*c2+20,10*t+50);
+	      m_renderer.draw_line(col_to_x(c1),row_to_y(t),col_to_x(c2),row_to_y(t));
+             
 	  }
+	  
+	  
+	  void draw_extensions(ZTerm* t) {
+            if ( m_router.is_done() )  {
+              m_renderer.draw_line(col_to_x(t->col()),row_to_y(t->row()),col_to_x(t->col()),row_to_y(m_router.get_net_track(t->net())));
+              m_renderer.draw_point(col_to_x(t->col()),row_to_y(m_router.get_net_track(t->net())),4);
+            }
+         }
+
+          void change_colors() {
+            std::map<ZNet*,ZColor>::iterator i;
+            
+            for(i=fixme.begin();i!=fixme.end();++i)
+              fixme[(*i).first] = get_rand_color();
+          }
 
   private:
 	 unsigned int col_to_x(unsigned int col) {
-	   
+            return 20*col+20;
 	 }
 	 
-	 unsigned int orient_to_y(ZTermOrientation o) {
-	   
+	 unsigned int row_to_y(unsigned int o) {
+	   return 20*o+20;
 	 }
 	 
-	 void pick_color_for_net(ZNet* n) {
-            Color z_color;
+
+        struct ZColor { int r; int g; int b; };
+
+	 ZColor get_rand_color() {
+            ZColor z_color;
             z_color.r = rand()%255;
             z_color.g = rand()%255;
-            z_color.b = rand()%255;	
+            z_color.b = rand()%255;     
+
+            return z_color;
+         }
+         
+	 void pick_color_for_net(ZNet* n) {
             
+            ZColor z_color = get_rand_color();
             if ( fixme.find(n) == fixme.end() ) 
             fixme[n]=z_color;
             
             m_renderer.set_drawing_color(fixme[n].r,fixme[n].g,fixme[n].b);
-          
         }
 
   private:
       ZRender m_renderer;
       ZChannelRouter m_router;
 
-      struct Color { int r; int g; int b; };
-      std::map<ZNet*, Color> fixme;
+      std::map<ZNet*, ZColor> fixme;
 
 };
 

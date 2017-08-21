@@ -25,7 +25,7 @@ int main( int argc, char* args[] )
 		    while( SDL_PollEvent( &e ) != 0 )
 		    {
 			    if ( e.type == SDL_QUIT ) quit = true;
-			    //if ( e.type == SDL_MOUSEBUTTONDOWN ) renderer.draw_line(0,0,10,10);
+			    if ( e.type == SDL_MOUSEBUTTONDOWN ) il.change_colors();
 			    //if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
 
 			    //for dbg
