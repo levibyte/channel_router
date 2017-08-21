@@ -4,13 +4,23 @@
 #include <SDL.h>
 
 
+#include <sstream>
+#include <cassert>
+
 int main( int argc, char* args[] )
 {
 
 	ZRender renderer("ChannelRouter");
-	ZChannelRouter router;
+        ZChannelRouter router;
+        ZInterLayer il(renderer,&router);
+        
+        ZNetlister netlist(&router);  
+               netlist.top_row() << "A" << "B" << "A" << "C" << "D" << "E" << "A" << "A" << "A";
+               netlist.buttom_row() << "B" << "C" << "C" << "" << "D";
+         
+	
 	router.route();
-	ZInterLayer il(renderer,router);
+	
 
 	
         unsigned int lastTime = 0, currentTime;

@@ -7,6 +7,10 @@
 #include <map>
 #include <list>
 #include <string>
+#include <sstream>
+//#include <ostream>
+//#include <istream>
+#include <iostream>
 
 #include "renderer.h"
 
@@ -38,7 +42,7 @@ class ZNet
     
     public:
 	  //get_terms()
-	  ZNet (const char* str):m_name(str) { 
+	  ZNet (const std::string& str ):m_name(str) { 
 	      m_farest_term = 0;
 	      m_closest_term = 0;
 	      is_first_term = true;
@@ -97,23 +101,10 @@ class ZChannelRouter
 
   public:
 	
-    ZChannelRouter():maxtracks(6) {
-	    //*
-	    a = new ZNet("A");
-	    add_term_to_net(a,0,z_upper_row);
-	    add_term_to_net(a,2,z_upper_row);
-	    
-	    b = new ZNet("B");
-	    add_term_to_net(b,1,z_upper_row);
-	    add_term_to_net(b,0,z_lower_row);
-	    
-	    c = new ZNet("C");
-	    add_term_to_net(c,3,z_upper_row);
-	    add_term_to_net(c,1,z_lower_row);
-	    add_term_to_net(c,2,z_lower_row);
-	    /**/
-	}
-	
+        ZChannelRouter():maxtracks(6),m_is_done(false) {
+
+        }
+            
 	void add_term_to_net(ZNet* N,unsigned int col, ZTermOrientation o) {
 	    ZTerm* t = N->add_term(col,o);
 	    
@@ -126,13 +117,21 @@ class ZChannelRouter
 	void assign_net_to_track(ZNet* N, unsigned int t) { m_net2track[N] = t; }
 
 	void route() {
-	    assign_net_to_track(a,1);
-	    assign_net_to_track(b,2);
-	    assign_net_to_track(c,3);
+	    m_is_done = false;
+             std::cout << " Routin net num: " << m_nets.size() << std::endl;
+            //assign_net_to_track(a,1);
+	    //assign_net_to_track(b,2);
+	    //assign_net_to_track(c,3);
+            //m_is_done = true;
 	}
 
-	bool is_done() {
-	    return true;
+
+        unsigned get_maxtracks() {
+          return maxtracks;
+        }
+        
+        bool is_done() {
+	    return m_is_done;
 	}
 	
 	unsigned int get_net_track(ZNet* N) {
@@ -141,36 +140,195 @@ class ZChannelRouter
 	
 	//FIXME returning private data!
 	std::list<ZNet*> get_nets() {
-            std::list<ZNet*> z;
-            z.push_back(a);
-            z.push_back(b);
-            z.push_back(c);
-            
-          return z;
+          return m_nets;
         }
         
   
+        ZNet* get_or_create_net(const std::string& name) {
+          //std::cout << "get or create "  << name << std::endl;
+          std::list<ZNet*>::iterator i;
+          
+          bool found = false;
+          for(i=m_nets.begin();i!=m_nets.end();++i){
+            if( (*i)->get_name() == name ) {
+              found = true;
+              break;
+            }
+          }
+            
+          if(!found)  { 
+            //std::cout << this << "not found: " << std::endl;
+            ZNet* net = new ZNet(name); 
+            m_nets.push_back(net);
+              //std::cout << m_nets.size() << std::endl;
+            return net;
+          }
+          
+          return *i;
+          
+        }
+        
   private:
-	 std::map<ZNet*,unsigned int> m_net2track;
+         bool m_is_done;
+         std::map<ZNet*,unsigned int> m_net2track;
 	 unsigned int maxtracks;
 	 
-	 ZNet* a;
-	 ZNet* b;
-	 ZNet* c;
 	 
+         std::list<ZNet*> m_nets;
 	 std::vector<ZTerm*> top_terms;
 	 std::vector<ZTerm*> bottom_terms;
 	 
 };
 
 
+class ZNetlister;
 
+class ZRow1 { 
+  public:  
+        ZRow1(ZNetlister* n ):m_netlister(n) {
+          
+        }
+        
+  ZNetlister* m_netlister;
+  
+};
+
+
+class ZRow2 { 
+  public:  
+        ZRow2(ZNetlister* n ):m_netlister(n) {
+          
+        }
+        
+  ZNetlister* m_netlister;
+  
+};
+
+class ZRow3 { 
+  public:  
+        ZRow3(ZNetlister* n ):m_netlister(n) {
+          
+        }
+        
+  ZNetlister* m_netlister;
+  
+};
+
+
+class ZRow4 { 
+  public:  
+        ZRow4(ZNetlister* n ):m_netlister(n) {
+          
+        }
+        
+  ZNetlister* m_netlister;
+  
+};
+
+
+class ZNetlister 
+{
+  
+    public:
+    
+           
+    public:
+            ZNetlister(ZChannelRouter* r):m_router(r) {
+              top_num = 0;
+              buttom_num = 0;
+            }
+            
+            
+           
+            
+            ZRow1 top_row() {
+                //add_term(stream.str(),top_num,z_lower_row); 
+                //top_num++;
+                return ZRow1(this);
+            }
+            
+            ZRow3 buttom_row()  {
+                //add_term(name,buttom_num,z_upper_row); 
+                //buttom_num++;
+                return ZRow3(this);
+            }
+            
+            void add_term1(const std::string& name) {
+                 if (name.empty()) return;
+                
+                ZNet* net = m_router->get_or_create_net(name);
+                m_router->add_term_to_net(net,top_num,z_upper_row); 
+                std::cout << " Adding buttom term " << name << " " << top_num << std::endl;
+                top_num++;
+            }
+
+           void add_term2(const std::string& name) {
+                 if (name.empty()) return;
+                 ZNet* net = m_router->get_or_create_net(name);
+                 m_router->add_term_to_net(net,buttom_num,z_lower_row);
+                
+                  std::cout << " Adding lower term " << name << " " << buttom_num << std::endl;
+                   buttom_num++;
+
+                 // std::cout << " Adding lower term " << name << std::endl;
+            }
+            
+            /*
+            void add_term(std::string name, unsigned int i, ZTermOrientation o) {
+               if (name.empty()) return;
+               ZNet* net = m_router->get_or_create_net(name);
+               m_router->add_term_to_net(net,i,o); 
+            }*/
+            
+
+            
+          
+    private:
+         unsigned int top_num;
+         unsigned int buttom_num;
+         
+         
+         ZChannelRouter* m_router;
+         
+         
+};
+
+
+
+///ESOVAAARAAAA :D
+
+ZRow1 operator << (ZRow2 D, std::string value) {
+    //D.m_netlister->buttom_num++;
+    D.m_netlister->add_term1(value);
+    return ZRow1(D.m_netlister);
+}
+
+
+ZRow2 operator << (ZRow1 D, std::string value) {
+    //D.m_netlister->buttom_num++;
+    D.m_netlister->add_term1(value);
+    return ZRow2(D.m_netlister);
+}
+
+
+ZRow3 operator << (ZRow4 D, std::string value) {
+    //D.m_netlister->top_num++;
+    D.m_netlister->add_term2(value);
+    return ZRow3(D.m_netlister);
+}
+
+
+ZRow4 operator << (ZRow3 D, std::string value) {
+    // D.m_netlister->top_num++;
+    D.m_netlister->add_term2(value);
+    return ZRow4(D.m_netlister);
+}
 
 
 class ZInterLayer {
   
   public:
-	 ZInterLayer (const ZRender& re, const ZChannelRouter& ro):m_renderer(re),m_router(ro) {
+	 ZInterLayer (const ZRender& re, ZChannelRouter* ro):m_renderer(re),m_router(ro) {
 	   
 	 }
 	 
@@ -183,14 +341,13 @@ class ZInterLayer {
 	  
 
 	  void draw_tracks() {
-	          //router.get_max_tracks_num;
 		  m_renderer.set_drawing_color(255,0,0);
-		  for(unsigned int i=5;i>0;i--) 
+		  for(unsigned int i=m_router->get_maxtracks()-1;i>0;i--) 
 		    m_renderer.draw_line(0,row_to_y(i),400,row_to_y(i));
 	  }
 	  
 	  void draw_nets() {
-	      std::list<ZNet*> nets = m_router.get_nets();
+	      std::list<ZNet*> nets = m_router->get_nets();
               std::list<ZNet*>::iterator i; 
               for(i=nets.begin();i!=nets.end();++i) 
                 draw_individual_net(*i);  
@@ -199,7 +356,7 @@ class ZInterLayer {
 	  void draw_individual_net(ZNet* net) {
               pick_color_for_net(net);
               draw_terms(net->get_terms());
-              if ( m_router.is_done() ) 
+              if ( m_router->is_done() ) 
                 draw_routed_segments(net);
           }
 	 
@@ -215,7 +372,7 @@ class ZInterLayer {
           void draw_term(ZTerm* t) {
             //std::cout << " drawrect " <<  t->col() << "---" <<  t->row() << std::endl;
             //m_renderer.draw_rect(20*t->col()+20,100*t->row()+20, 10, 10);
-            m_renderer.draw_square(col_to_x(t->col()),row_to_y(t->row()),10);
+              m_renderer.draw_square(col_to_x(t->col()),row_to_y(t->row()),5);
             //m_renderer->draw_text(t.row,)
           }
 
@@ -226,7 +383,7 @@ class ZInterLayer {
 	  }
 	  
 	  void draw_net_trunk_on_track(ZNet* n) {
-	      unsigned int t = m_router.get_net_track(n);
+	      unsigned int t = m_router->get_net_track(n);
 	      unsigned int c1 = n->get_closest_term()->col();
 	      unsigned int c2 = n->get_farest_term()->col();
 
@@ -242,9 +399,9 @@ class ZInterLayer {
 	  
 	  
 	  void draw_extensions(ZTerm* t) {
-            if ( m_router.is_done() )  {
-              m_renderer.draw_line(col_to_x(t->col()),row_to_y(t->row()),col_to_x(t->col()),row_to_y(m_router.get_net_track(t->net())));
-              m_renderer.draw_point(col_to_x(t->col()),row_to_y(m_router.get_net_track(t->net())),4);
+            if ( m_router->is_done() )  {
+              m_renderer.draw_line(col_to_x(t->col()),row_to_y(t->row()),col_to_x(t->col()),row_to_y(m_router->get_net_track(t->net())));
+              m_renderer.draw_point(col_to_x(t->col()),row_to_y(m_router->get_net_track(t->net())),4);
             }
          }
 
@@ -287,7 +444,7 @@ class ZInterLayer {
 
   private:
       ZRender m_renderer;
-      ZChannelRouter m_router;
+      ZChannelRouter* m_router;
 
       std::map<ZNet*, ZColor> fixme;
 
