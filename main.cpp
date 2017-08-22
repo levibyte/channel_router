@@ -4,11 +4,6 @@
 #include <SDL.h>
 
 
-#include <sstream>
-#include <cassert>
-
-
-
 int main( int argc, char* args[] )
 {
 
@@ -17,8 +12,9 @@ int main( int argc, char* args[] )
         ZInterLayer il(renderer,&router);
         
         ZNetlister netlist(&router);  
-               netlist.top_row() << "A" << "B" << "A" << "C" << "D" << "E" << "A" << "A" << "A";
-               netlist.buttom_row() << "B" << "C" << "C" << "" << "D";
+               //netlist.top_row() << "A" << "B" << "A" << "C" << "D" << "E" << "A" << "A" << "A";
+               netlist.top_row() << "A" << "B" << "A" << "C";
+	       netlist.buttom_row() << "B" << "C" << "C" << "";
          
 	
 	router.route();
