@@ -16,9 +16,9 @@ int main( int argc, char* args[] )
                //netlist.buttom_row() << "N2" << "N3" << "N5" << "N3" << "N5" << "N2" << "N6" << "N8" << "N9" << "N8" << "N7" << "N9";
                
                
-                  netlist.top_row() << "A" << "B" << "A" << "C";
-	       netlist.buttom_row() << "B" << "C" << "C" << "";
-         
+                  netlist.top_row() << "F" << "B" << "A" << "" << "" << "C" << "A";
+	       netlist.buttom_row() << "B" << "C" << "C" << "F" << "B";
+          
 	
 	router.route();
 	

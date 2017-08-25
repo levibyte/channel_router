@@ -17,7 +17,7 @@
 #include "renderer.h"
 #include "graph.h"
 
-const int CHANNEL_MAX=6;
+const int CHANNEL_MAX=7;
 
 enum ZTermOrientation { z_lower_row = CHANNEL_MAX, z_upper_row = 0  };
 
@@ -108,7 +108,7 @@ class ZChannelRouter
 
   public:
 	
-        ZChannelRouter():maxtracks(CHANNEL_MAX),m_is_done(false) {
+        ZChannelRouter():maxtracks(CHANNEL_MAX),m_max_used_track(0),m_is_done(false) {
 
         }
             
@@ -133,6 +133,7 @@ class ZChannelRouter
 	    }
 	    
 	    std::list<ZNet*> nets = m_graph->get_top_nets();
+	    std::cout << "have " << nets.size() << " to route" << std::endl;
             std::list<ZNet*>::iterator i;
             int j=1;
             for(i=nets.begin();i!=nets.end();i++,j++)
@@ -153,7 +154,8 @@ class ZChannelRouter
 
 
         unsigned get_maxtracks() {
-          return maxtracks;
+          //std::cout << maxtracks << std::endl;
+	  return maxtracks;
         }
         
         bool is_done() {
@@ -200,6 +202,11 @@ class ZChannelRouter
 	 void assign_net_to_track(ZNet* N, unsigned int t) { 
             std::cout << " Assigned: " << N->get_name() << " -> " << t << std::endl;
            m_net2track[N] = t; 
+	    
+	   if ( t > m_max_used_track ) {
+	      m_max_used_track = t;
+	      maxtracks = t;
+	    }
          }
 
   private:
@@ -207,7 +214,7 @@ class ZChannelRouter
          bool m_is_done;
          std::map<ZNet*,unsigned int> m_net2track;
 	 unsigned int maxtracks;
-	 
+	 unsigned int m_max_used_track;
 	 //class Graph<ZNet*>;
 	 Graph* m_graph;
 	 
@@ -371,7 +378,7 @@ class ZInterLayer {
 	 
 	 
 	 void draw() {
-              draw_tracks();
+              //draw_tracks();
 	      draw_nets(); 
               m_renderer.refresh();
 	  }
@@ -387,11 +394,13 @@ class ZInterLayer {
 	      std::list<ZNet*> nets = m_router->get_nets();
               std::list<ZNet*>::iterator i; 
               for(i=nets.begin();i!=nets.end();++i) 
-                draw_individual_net(*i);  
+                if(!(*i)->get_name().empty()) 
+		  draw_individual_net(*i);  
 	  }
 	  
 	  void draw_individual_net(ZNet* net) {
               pick_color_for_net(net);
+	      
               draw_terms(net->get_terms());
               if ( m_router->is_done() ) 
                 draw_routed_segments(net);
@@ -409,7 +418,8 @@ class ZInterLayer {
           void draw_term(ZTerm* t) {
             //std::cout << " drawrect " <<  t->col() << "---" <<  t->row() << std::endl;
             //m_renderer.draw_rect(20*t->col()+20,100*t->row()+20, 10, 10);
-              m_renderer.draw_square(col_to_x(t->col()),row_to_y(t->row()),10);
+              m_renderer.draw_square(col_to_x(t->col()),row_to_y(!t->row()?0:m_router
+              ->get_maxtracks()+1),10);
             //m_renderer->draw_text(t.row,)
           }
 
@@ -427,7 +437,7 @@ class ZInterLayer {
 	      m_renderer.set_drawing_color(fixme[n].r,fixme[n].g,fixme[n].b);
 	      //m_renderer.draw_line(0,10*i+50,20+300,10*i+50);
 
-	      //std::cout << "Net:" << n->get_name() << " track:" << t << " " << c1 << " " << c2 << std::endl;
+	      //std::cout << "Net:" << n->get_name() << " track:" << t << "  (" << c1 << "->" << c2 << ")" << std::endl;
 	      //20*t->col()+20,100*t->row()+20
 	      
 	      m_renderer.draw_line(col_to_x(c1),row_to_y(t),col_to_x(c2),row_to_y(t));
@@ -437,8 +447,10 @@ class ZInterLayer {
 	  
 	  void draw_extensions(ZTerm* t) {
             if ( m_router->is_done() && ! t->net()->get_name().empty() )  {
-              m_renderer.draw_line(col_to_x(t->col()),row_to_y(t->row()),col_to_x(t->col()),row_to_y(m_router->get_net_track(t->net())));
-              m_renderer.draw_point(col_to_x(t->col()),row_to_y(m_router->get_net_track(t->net())),4);
+	      int tmp1 = row_to_y(!t->row()?0:m_router->get_maxtracks()+1);
+	      int tmp2 = row_to_y(m_router->get_net_track(t->net()));
+              m_renderer.draw_line(col_to_x(t->col()),tmp1,col_to_x(t->col()),tmp2);
+              m_renderer.draw_point(col_to_x(t->col()),tmp2,2);
             }
          }
 
@@ -469,7 +481,16 @@ class ZInterLayer {
 
             return z_color;
          }
-         
+
+	  ZColor hash_color(const std::string& str) {
+            ZColor z_color;
+            z_color.r;// = rand()%255;
+            z_color.g;// = rand()%255;
+            z_color.b;// = rand()%255;     
+
+            return z_color;
+         }
+
 	 void pick_color_for_net(ZNet* n) {
             
             ZColor z_color = get_rand_color();
