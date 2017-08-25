@@ -12,8 +12,11 @@ int main( int argc, char* args[] )
         ZInterLayer il(renderer,&router);
         
         ZNetlister netlist(&router);  
-               //netlist.top_row() << "A" << "B" << "A" << "C" << "D" << "E" << "A" << "A" << "A";
-               netlist.top_row() << "A" << "B" << "A" << "C";
+               //netlist.top_row()    << ""   << "N1" << "N4" << "N5" << "N6" << ""   << "N7" << "N4" << "N9" << "Ny" << "Ny" << "Z";
+               //netlist.buttom_row() << "N2" << "N3" << "N5" << "N3" << "N5" << "N2" << "N6" << "N8" << "N9" << "N8" << "N7" << "N9";
+               
+               
+                  netlist.top_row() << "A" << "B" << "A" << "C";
 	       netlist.buttom_row() << "B" << "C" << "C" << "";
          
 	

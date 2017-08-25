@@ -100,78 +100,6 @@ class ZNet
 };
 
 
-class Graph
-{
-    int V;    // No. of vertices
-    std::list<ZNet*> *adj;    // Pointer to an array containing adjacency lists
-public:
-
-
-Graph(int V)
-{
-    this->V = V;
-    adj = new std::list<ZNet*>[V];
-}
- 
-void addEdge(ZNet* v, ZNet* w)
-{
-    //std::list<ZNet*>::iterator i = ;
-    //int j = i - adj->begin();
-    std::cout << v->get_name() << "->" << w->get_name() << std::endl;
-    adj[std::distance(adj->begin(),std::find(adj->begin(),adj->end(),v))].push_back(w); // Add w to v’s list.
-}
- 
-// This function is a variation of DFSUytil() in http://www.geeksforgeeks.org/archives/18212
-bool isCyclicUtil(int v, bool visited[], bool *recStack)
-{
-   //int v = std::distance(adj->begin(),std::find(adj->begin(),adj->end(),V));
-    if(visited[v] == false)
-    {
-        // Mark the current node as visited and part of recursion stack
-        visited[v] = true;
-        recStack[v] = true;
- 
-        // Recur for all the vertices adjacent to this vertex
-        std::list<ZNet*>::iterator i;
-        for(i = adj[v].begin(); i != adj[v].end(); ++i)
-        {
-	    int v = std::distance(adj->begin(),std::find(adj->begin(),adj->end(),*i));
-   
-	    if ( !visited[v] && isCyclicUtil(v, visited, recStack) )
-                return true;
-            else if (recStack[v])
-                return true;
-        }
- 
-    }
-    recStack[v] = false;  // remove the vertex from recursion stack
-    return false;
-}
- 
-// Returns true if the graph contains a cycle, else false.
-// This function is a variation of DFS() in http://www.geeksforgeeks.org/archives/18212
-bool isCyclic()
-{
-    // Mark all the vertices as not visited and not part of recursion
-    // stack
-    bool *visited = new bool[V];
-    bool *recStack = new bool[V];
-    for(int i = 0; i < V; i++)
-    {
-        visited[i] = false;
-        recStack[i] = false;
-    }
- 
-    // Call the recursive helper function to detect cycle in different
-    // DFS trees
-    for(int i = 0; i < V; i++)
-        if (isCyclicUtil(i, visited, recStack))
-            return true;
- 
-    return false;
-}
-};
-
 
 
 
@@ -197,15 +125,19 @@ class ZChannelRouter
 	void route() {
 	    m_is_done = false;
              std::cout << " Routin net num: " << m_nets.size() << std::endl;
-            //assign_net_to_track(*(m_nets.begin()),1);
-	    //assign_net_to_track(*(m_nets.begin()++),4);
- 	    //assign_net_to_track(*(m_nets.begin()++++),5);
-	    create_vcg();
+
+            create_vcg();
 	    if ( m_graph->isCyclic() ) { 
-		std::cout << "cycles" << std::endl;
+		std::cout << "cycles found , can't route" << std::endl;
 		return;
 	    }
 	    
+	    std::list<ZNet*> nets = m_graph->get_top_nets();
+            std::list<ZNet*>::iterator i;
+            int j=1;
+            for(i=nets.begin();i!=nets.end();i++,j++)
+              if(*i) assign_net_to_track(*i,j);
+            
             m_is_done = true;
 	}
 	
@@ -214,8 +146,9 @@ class ZChannelRouter
 	    std::vector<ZTerm*>::iterator i;
 	    int j=0;
 	    for(i=bottom_terms.begin();i!=bottom_terms.end();++i,++j)
-	      if ( j<top_terms.size() && !(*i)->net()->get_name().empty() ) 
-		m_graph->addEdge((*i)->net(),top_terms[j]->net());
+	      if ( j<top_terms.size() && !(*i)->net()->get_name().empty() && !top_terms[j]->net()->get_name().empty() ) 
+		m_graph->addEdge((*i)->net(),top_terms[j]->net()), std::cout <<(*i)->net()->get_name()  << " " << top_terms[j]->net()->get_name() << " " << std::endl; 
+  ;
 	}
 
 
@@ -228,7 +161,9 @@ class ZChannelRouter
 	}
 	
 	unsigned int get_net_track(ZNet* N) {
-	  return m_net2track[N];
+          if (N->get_name().empty()) return 9999999;
+	  //std::cout << "Request: " << N->get_name() << "--->" << m_net2track[N]  << std::endl;
+          return m_net2track[N];
 	}
 	
 	//FIXME returning private data!
@@ -262,7 +197,10 @@ class ZChannelRouter
 
         
   private:
-	 void assign_net_to_track(ZNet* N, unsigned int t) { m_net2track[N] = t; }
+	 void assign_net_to_track(ZNet* N, unsigned int t) { 
+            std::cout << " Assigned: " << N->get_name() << " -> " << t << std::endl;
+           m_net2track[N] = t; 
+         }
 
   private:
     
@@ -353,7 +291,7 @@ class ZNetlister
             }
             
             void add_term1(const std::string& name) {
-                 if (name.empty()) return;
+                // if (name.empty()) return;
                 
                 ZNet* net = m_router->get_or_create_net(name);
                 m_router->add_term_to_net(net,top_num,z_upper_row); 
@@ -362,7 +300,7 @@ class ZNetlister
             }
 
            void add_term2(const std::string& name) {
-                 if (name.empty()) return;
+                 //if (name.empty()) return;
                  ZNet* net = m_router->get_or_create_net(name);
                  m_router->add_term_to_net(net,buttom_num,z_lower_row);
                 
@@ -498,7 +436,7 @@ class ZInterLayer {
 	  
 	  
 	  void draw_extensions(ZTerm* t) {
-            if ( m_router->is_done() )  {
+            if ( m_router->is_done() && ! t->net()->get_name().empty() )  {
               m_renderer.draw_line(col_to_x(t->col()),row_to_y(t->row()),col_to_x(t->col()),row_to_y(m_router->get_net_track(t->net())));
               m_renderer.draw_point(col_to_x(t->col()),row_to_y(m_router->get_net_track(t->net())),4);
             }
