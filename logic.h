@@ -121,26 +121,78 @@ class ZChannelRouter
 		bottom_terms.push_back(t);
 	}
 	
-
+	bool has_confliscts(ZNet* n1, ZNet* n2) {
+	      unsigned int a1 = n1->get_closest_term()->col();
+	      unsigned int b1 = n1->get_farest_term()->col();
+	      
+	      unsigned int a2 = n2->get_closest_term()->col();
+	      unsigned int b2 = n2->get_farest_term()->col();
+	      
+	      if ( a1 == a2 || b1 == b2 ) return true;
+	      if ( a1 < a2 ) return ( a2 < a1 );
+	      if ( a1 < a2 ) return ( a2 > a1 );
+	}
+	
+	bool check_can_be_assigned_on_track(ZNet* n, unsigned t) {
+	  std::vector<ZNet*> routed_nets = m_track2nets[t];
+	  std::vector<ZNet*>::iterator i;
+	  
+	  for(i=routed_nets.begin();i!=routed_nets.end();++i ) {
+	    if ( has_confliscts(n,*i) ) return true;
+	  }
+	  
+	  return false;
+	}
+	
+	bool try_to_assign_net_to_track(ZNet* net, unsigned int& track ) {
+	    
+	    std::cout << net->get_name() << " track: " << track << std::endl;
+	    //return true;
+	    
+	    if ( track > CHANNEL_MAX ) return false;
+	    
+	    if ( check_can_be_assigned_on_track(net,track) ) {
+	      assign_net_to_track(net,track); 
+	      track++;
+	      return true;
+	    }
+	    	    
+	    return try_to_assign_net_to_track(net,track);
+	}
+	
+	
 	void route() {
 	    m_is_done = false;
-             std::cout << " Routin net num: " << m_nets.size() << std::endl;
+           
+	    std::cout << " Routin net num: " << m_nets.size() << std::endl;
 
             create_vcg();
 	    if ( m_graph->isCyclic() ) { 
 		std::cout << "cycles found , can't route" << std::endl;
 		return;
 	    }
+
+	   
 	    
-	    std::list<ZNet*> nets = m_graph->get_top_nets();
-	    std::cout << "have " << nets.size() << " to route" << std::endl;
-            std::list<ZNet*>::iterator i;
-            int j=1;
-            for(i=nets.begin();i!=nets.end();i++,j++)
-              if(*i) assign_net_to_track(*i,j);
-            
-            m_is_done = true;
+	    unsigned int c_track=1;
+
+	    //bool 
+	    while( ! m_is_done ) {
+		std::list<ZNet*> nets = m_graph->get_top_nets();
+		std::list<ZNet*>::iterator i;
+		std::cout << "have " << nets.size() << " to route" << std::endl;
+		if( ! nets.size() ) break;
+		
+		for(i=nets.begin();i!=nets.end();i++)
+		    try_to_assign_net_to_track(*i, c_track);
+	   }
+         
+         
+	    m_is_done = true;
 	}
+	
+	
+	
 	
 	void create_vcg() {
 	    m_graph = new Graph(m_nets.size());
@@ -163,7 +215,12 @@ class ZChannelRouter
 	}
 	
 	unsigned int get_net_track(ZNet* N) {
-          if (N->get_name().empty()) return 9999999;
+          //assert(N);
+	  //assert(N->get_name().empty());
+	  //assert(!m_net2track[N]);
+	 if (N->get_name().empty()) return 9999999;
+	  //if ( ! m_net2track[N] ) return 9999999;
+	  
 	  //std::cout << "Request: " << N->get_name() << "--->" << m_net2track[N]  << std::endl;
           return m_net2track[N];
 	}
@@ -202,6 +259,7 @@ class ZChannelRouter
 	 void assign_net_to_track(ZNet* N, unsigned int t) { 
             std::cout << " Assigned: " << N->get_name() << " -> " << t << std::endl;
            m_net2track[N] = t; 
+	   m_track2nets[t].push_back(N);
 	    
 	   if ( t > m_max_used_track ) {
 	      m_max_used_track = t;
@@ -213,6 +271,8 @@ class ZChannelRouter
     
          bool m_is_done;
          std::map<ZNet*,unsigned int> m_net2track;
+	 std::map<unsigned int,std::vector<ZNet*> > m_track2nets;
+	 
 	 unsigned int maxtracks;
 	 unsigned int m_max_used_track;
 	 //class Graph<ZNet*>;
@@ -482,20 +542,37 @@ class ZInterLayer {
             return z_color;
          }
 
+	  int hash_get(const std::string& str){
+		int hash = 5381;
+		for (int i = 0; i < str.size(); i++) {
+		  hash = ((hash << 5) + hash) + (int)str[i]; /* hash * 33 + c */
+		}
+		
+	  return hash;
+	  }
+
 	  ZColor hash_color(const std::string& str) {
             ZColor z_color;
-            z_color.r;// = rand()%255;
-            z_color.g;// = rand()%255;
-            z_color.b;// = rand()%255;     
-
+	    int hash = hash_get(str);
+	    z_color.r = (hash & 0xFF0000) >> 16;// = rand()%255;
+            z_color.g = (hash & 0xFF0000) >> 8 ;// = rand()%255;
+            z_color.b = (hash & 0xFF0000); // = rand()%255;     
+	    std::cout << str << "->" << hash << " " << z_color.r << std::endl;
+            
+	    //std::cout << z_color.r << std::endl;
+	    //std::cout << z_color.g << std::endl;
+	    //std::cout << z_color.b << std::endl;
+	    //std::cout << std::endl;
+	    
             return z_color;
          }
 
 	 void pick_color_for_net(ZNet* n) {
             
-            ZColor z_color = get_rand_color();
-            if ( fixme.find(n) == fixme.end() ) 
-            fixme[n]=z_color;
+            if ( fixme.find(n) == fixme.end() ) {
+	      ZColor z_color = get_rand_color();//hash_color(n->get_name()); //
+	      fixme[n]=z_color;
+	    }
             
             m_renderer.set_drawing_color(fixme[n].r,fixme[n].g,fixme[n].b);
         }

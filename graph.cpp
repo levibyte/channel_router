@@ -10,6 +10,10 @@ Graph::Graph(int V)
     this->V = V-1;
     adj = new list<int>[V];
     n = -1;
+ 
+    fixme.resize(V);
+    for(int i=0;i<V;i++) 
+      fixme[i] = 0;  
 }
  
 int Graph::create_or_get_net2int_mapping(ZNet* net) {
@@ -24,9 +28,18 @@ int Graph::create_or_get_net2int_mapping(ZNet* net) {
 std::list<ZNet*> Graph::get_top_nets() {
     std::list<ZNet*> nets;
     for(int i=0;i<V;i++) {
+      
+      if (! fixme[i]) {
+	nets.push_back(int2net_fixme[i]);
+	fixme[i]=-1;
+      }
+	
+      /*
       std::cout << i << "   " << (adj[i]).front() << " connections: " << (adj[i]).size() << std::endl;
       std::cout << " --> " << int2net_fixme[i] << std::endl;
       nets.push_back(int2net_fixme[i]);
+      */
+      
       /*if( (adj[i]).size() != 0 ) 
 	nets.push_back(int2net_fixme[*(adj[i].begin())]);
       else
@@ -51,11 +64,12 @@ void Graph::addEdge(ZNet* v, ZNet* w)
 {
     
      
-      int V = create_or_get_net2int_mapping(v);
+     int V = create_or_get_net2int_mapping(v);
      int W = create_or_get_net2int_mapping(w);
      
      //std::cout << V << " " << W << " " << std::endl; 
     adj[V].push_back(W); // Add w to vs list.
+    fixme[W]++;
 }
  
 // This function is a variation of DFSUytil() in http://www.geeksforgeeks.org/archives/18212

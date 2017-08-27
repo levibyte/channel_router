@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <list>
+#include <vector>
 #include <limits.h>
 #include <map> 
 
@@ -15,6 +16,8 @@ class Graph
     int n;
     int V;    // No. of vertices
     list<int> *adj;    // Pointer to an array containing adjacency lists
+    
+    vector<int> fixme; 
     bool isCyclicUtil(int v, bool visited[], bool *rs);  // used by isCyclic()
     map<ZNet*,int> fixme_net2int;
     map<int,ZNet*> int2net_fixme;
