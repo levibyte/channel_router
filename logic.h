@@ -17,7 +17,7 @@
 #include "renderer.h"
 #include "graph.h"
 
-const int CHANNEL_MAX=7;
+const int CHANNEL_MAX=10;
 
 enum ZTermOrientation { z_lower_row = CHANNEL_MAX, z_upper_row = 0  };
 
@@ -128,36 +128,49 @@ class ZChannelRouter
 	      unsigned int a2 = n2->get_closest_term()->col();
 	      unsigned int b2 = n2->get_farest_term()->col();
 	      
+              //std::cout << "    is a confilict?  " << n1->get_name() << " and " << n2->get_name() << std::endl;
+              //std::cout << "                     "  << a1 << "," << b1 << " <=> "<< a2 << "," << b2 << std::endl;
+              
 	      if ( a1 == a2 || b1 == b2 ) return true;
-	      if ( a1 < a2 ) return ( a2 < a1 );
-	      if ( a1 < a2 ) return ( a2 > a1 );
+	      if ( a1 > a2 ) return ( b2 > a1 && b2 < b1 );
+	      if ( b1 > b2 ) return ( a2 > a1 && a2 < b2 );
+              return false;
 	}
 	
 	bool check_can_be_assigned_on_track(ZNet* n, unsigned t) {
 	  std::vector<ZNet*> routed_nets = m_track2nets[t];
 	  std::vector<ZNet*>::iterator i;
-	  
-	  for(i=routed_nets.begin();i!=routed_nets.end();++i ) {
-	    if ( has_confliscts(n,*i) ) return true;
+	  std::cout << "  Checking " << n->get_name() << " on track " << t << std::endl;
+          
+           if( !routed_nets.size() ) return true;
+           
+          //std::cout << "  on track are " << routed_nets.size() << " net" << std::endl;
+          for(i=routed_nets.begin();i!=routed_nets.end();++i ) {
+            //std::cout << "                "<< (*i)->get_name() << std::endl;
+	    if ( has_confliscts(n,*i) ) return false;
 	  }
 	  
-	  return false;
+	  
+	  return true;
 	}
 	
-	bool try_to_assign_net_to_track(ZNet* net, unsigned int& track ) {
+	bool try_to_assign_net_to_track_if_not_try_other(ZNet* net, unsigned int& track ) {
 	    
-	    std::cout << net->get_name() << " track: " << track << std::endl;
+	   
+            //track++;
 	    //return true;
-	    
+	     std::cout << " Trying " << net->get_name() << " on track " << track << std::endl;
+             
 	    if ( track > CHANNEL_MAX ) return false;
 	    
 	    if ( check_can_be_assigned_on_track(net,track) ) {
 	      assign_net_to_track(net,track); 
-	      track++;
 	      return true;
 	    }
-	    	    
-	    return try_to_assign_net_to_track(net,track);
+	    	  
+	    track++;	  
+            
+	    return try_to_assign_net_to_track_if_not_try_other(net,track);
 	}
 	
 	
@@ -174,17 +187,18 @@ class ZChannelRouter
 
 	   
 	    
-	    unsigned int c_track=1;
+	    
 
 	    //bool 
+            unsigned int c_track=1;
 	    while( ! m_is_done ) {
 		std::list<ZNet*> nets = m_graph->get_top_nets();
 		std::list<ZNet*>::iterator i;
-		std::cout << "have " << nets.size() << " to route" << std::endl;
+		std::cout << "********************************** have " << nets.size() << " TOP nets to route" << std::endl;
 		if( ! nets.size() ) break;
 		
-		for(i=nets.begin();i!=nets.end();i++)
-		    try_to_assign_net_to_track(*i, c_track);
+		for(i=nets.begin();i!=nets.end();++i,c_track=1)
+		    try_to_assign_net_to_track_if_not_try_other(*i, c_track);
 	   }
          
          
@@ -257,7 +271,9 @@ class ZChannelRouter
         
   private:
 	 void assign_net_to_track(ZNet* N, unsigned int t) { 
-            std::cout << " Assigned: " << N->get_name() << " -> " << t << std::endl;
+            std::cout << "     Assigned: " << N->get_name() << " -> " << t << std::endl;
+            std::cout << std::endl;
+            
            m_net2track[N] = t; 
 	   m_track2nets[t].push_back(N);
 	    
@@ -438,15 +454,15 @@ class ZInterLayer {
 	 
 	 
 	 void draw() {
-              //draw_tracks();
+              draw_tracks();
 	      draw_nets(); 
               m_renderer.refresh();
 	  }
 	  
 
 	  void draw_tracks() {
-		  m_renderer.set_drawing_color(255,0,0);
-		  for(unsigned int i=m_router->get_maxtracks()-1;i>0;i--) 
+		  m_renderer.set_drawing_color(48,2,2);
+		  for(unsigned int i=m_router->get_maxtracks();i>0;i--) 
 		    m_renderer.draw_line(0,row_to_y(i),400,row_to_y(i));
 	  }
 	  
@@ -484,7 +500,8 @@ class ZInterLayer {
           }
 
 	  void draw_routed_segments(ZNet* n) {
-	      draw_net_trunk_on_track(n);
+	      if (m_router->get_net_track(n))
+              draw_net_trunk_on_track(n);
 	      //draw_extensions(n);
               //draw_intersection_points();
 	  }
@@ -506,7 +523,7 @@ class ZInterLayer {
 	  
 	  
 	  void draw_extensions(ZTerm* t) {
-            if ( m_router->is_done() && ! t->net()->get_name().empty() )  {
+            if ( m_router->is_done() && ! t->net()->get_name().empty() && m_router->get_net_track(t->net()) )  {
 	      int tmp1 = row_to_y(!t->row()?0:m_router->get_maxtracks()+1);
 	      int tmp2 = row_to_y(m_router->get_net_track(t->net()));
               m_renderer.draw_line(col_to_x(t->col()),tmp1,col_to_x(t->col()),tmp2);

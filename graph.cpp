@@ -27,14 +27,22 @@ int Graph::create_or_get_net2int_mapping(ZNet* net) {
 
 std::list<ZNet*> Graph::get_top_nets() {
     std::list<ZNet*> nets;
+    
     for(int i=0;i<V;i++) {
-      
       if (! fixme[i]) {
-	nets.push_back(int2net_fixme[i]);
 	fixme[i]=-1;
+        nets.push_back(int2net_fixme[i]);
       }
-	
-      /*
+
+     /* 
+     for(int i=0;i<V;i++) {
+     if (! fixme[i]) {
+      for(list<int>::iterator j = adj[i].begin(); j!=adj[i].end(); ++j) fixme[*j]--;
+    */
+
+      
+
+    /*
       std::cout << i << "   " << (adj[i]).front() << " connections: " << (adj[i]).size() << std::endl;
       std::cout << " --> " << int2net_fixme[i] << std::endl;
       nets.push_back(int2net_fixme[i]);
