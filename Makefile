@@ -8,5 +8,5 @@ endif
 
 F=main.cpp graph.cpp
 default:
-	rm -rf ztest
+	rm -rf zRouter.bin
 	g++ -Wfatal-errors -g  $(F) $(INCLS) $(LIBS) -ldl -lrt -o zRouter.bin
