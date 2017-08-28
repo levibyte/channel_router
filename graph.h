@@ -22,11 +22,14 @@ class Graph
     map<ZNet*,int> fixme_net2int;
     map<int,ZNet*> int2net_fixme;
     
+    
 public:
   
-    //void dump();
+    void decrease_refnums(ZNet* n);
+    void return_back(ZNet* n);
+  //void dump();
     int create_or_get_net2int_mapping(ZNet* n);
-    std::list<ZNet*> get_top_nets();
+    std::vector<ZNet*> get_top_nets();
 
     Graph(int V);   // Constructor
     void addEdge(ZNet* v, ZNet* w);   // to add an edge to graph

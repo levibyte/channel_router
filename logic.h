@@ -88,6 +88,11 @@ class ZNet
 	  }
 	  
 	  std::string get_name() { return m_name; }
+	  
+	  //bool operator < (const MyStruct& str) const {
+          //    return (key < str.key);
+          //}
+    
     private:
 	  //std::list<ZTerm*> terms;
 	 
@@ -100,7 +105,16 @@ class ZNet
 };
 
 
-
+//*
+struct comparator
+{
+    inline bool operator() (ZNet* n1, ZNet* n2)
+    {
+        std::cout << " Compare " << n1->get_name() <<  ":" << n1->get_closest_term()->col() << " &&& " << n2->get_name() << ":" << n2->get_closest_term()->col() << std::endl;
+        return (n1->get_closest_term()->col() < n2->get_closest_term()->col());
+    }
+};
+/**/
 
 
 class ZChannelRouter
@@ -160,6 +174,15 @@ class ZChannelRouter
 	  return true;
 	}
 	
+	bool try_to_assign(ZNet* net, unsigned track) {
+          if ( check_can_be_assigned_on_track(net,track) ) {
+              assign_net_to_track(net,track); 
+              return true;
+            }
+            
+         return false; 
+        }
+        
 	bool try_to_assign_net_to_track_if_not_try_other(ZNet* net, unsigned int& track ) {
 	    
 	   
@@ -205,15 +228,24 @@ class ZChannelRouter
 	    //bool 
             unsigned int c_track=1;
 	    while( ! m_is_done ) {
-		std::list<ZNet*> nets = m_graph->get_top_nets();
-		std::list<ZNet*>::iterator i;
-		std::cout << "********************************** have " << nets.size() << " TOP nets to route" << std::endl;
+		std::vector<ZNet*> nets = m_graph->get_top_nets();
+                std::cout << "********************************** have " << nets.size() << " TOP nets to route" << std::endl;
+                // not for list :/ 
+                //std::sort(nets.begin(), nets.end(),comparator());
+                //nets.sort(comparator());
+		std::vector<ZNet*>::iterator i;
+		
 		if( ! nets.size() ) break;
 		
-		for(i=nets.begin();i!=nets.end();++i,c_track=1)
-		    try_to_assign_net_to_track_if_not_try_other(*i, c_track);
-		
-		
+		for(i=nets.begin();i!=nets.end();++i) {
+		    if ( try_to_assign(*i, c_track) ) 
+                      m_graph->decrease_refnums(*i);
+                    else
+                      m_graph->return_back(*i);
+                }        
+                       
+
+		c_track++;
 	   }
          
          
@@ -433,7 +465,8 @@ class ZNetlister
 
 
 ///ESOVAAARAAAA :D
-
+namespace {
+  
 ZRow1 operator << (ZRow2 D, std::string value) {
     //D.m_netlister->buttom_num++;
     D.m_netlister->add_term1(value);
@@ -460,7 +493,7 @@ ZRow4 operator << (ZRow3 D, std::string value) {
     D.m_netlister->add_term2(value);
     return ZRow4(D.m_netlister);
 }
-
+}
 
 class ZInterLayer {
   

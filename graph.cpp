@@ -3,7 +3,7 @@
 #include <limits.h>
 
 #include "graph.h"
-//#include "logic.h"
+#include "logic.h"
 
 Graph::Graph(int V)
 {
@@ -25,54 +25,55 @@ int Graph::create_or_get_net2int_mapping(ZNet* net) {
 }
 
 
-std::list<ZNet*> Graph::get_top_nets() {
-  std::cout << " get top nets " << std::endl;
-  std::list<ZNet*> nets;
-    
-    for(int i=0;i<V;i++) {
-      if (! fixme[i]) {
-	fixme[i]=-1;
-        nets.push_back(int2net_fixme[i]);
-     }
-    }
 
-	//for(list<int>::iterator j = adj[i].begin(); j!=adj[i].end(); ++j) fixme[*j]--;
-     
-     //* 
-     for(int i=0;i<V;i++) 
+
+std::vector<ZNet*> Graph::get_top_nets() {
+  std::cout << "!!!!!!!!!!!!!!!!!!!!!!! get top nets " << std::endl;
+  std::vector<ZNet*> nets;
+    
+  
+    for(int i=0;i<V;i++) {
+      std::cout << int2net_fixme[i]->get_name() << "---> " << fixme[i] << std::endl;
+      if ( fixme[i] == 0 ) {
+        fixme[i]=-1;
+        nets.push_back(int2net_fixme[i]);
+      }
+    }
+    
+    //
+    /*
+    for(int i=0;i<nets.size();i++)
+        for(list<int>::iterator j = adj[i].begin(); j!=adj[i].end(); ++j) fixme[*j]--;
+          //fixme[*j]>0?fixme[*j]--:fixme[*j]=0;
+      
+ 
+
+    /* 
+    for(int i=0;i<V;i++) 
       if (fixme[i] == -1 )
-	for(list<int>::iterator j = adj[i].begin(); j!=adj[i].end(); ++j) fixme[*j]--;
+        for(list<int>::iterator j = adj[i].begin(); j!=adj[i].end(); ++j) fixme[*j]--;
     /**/
 
-     std::cout << nets.size() << std::endl;
-      
-
-    /*
-      std::cout << i << "   " << (adj[i]).front() << " connections: " << (adj[i]).size() << std::endl;
-      std::cout << " --> " << int2net_fixme[i] << std::endl;
-      nets.push_back(int2net_fixme[i]);
-      */
-      
-      /*if( (adj[i]).size() != 0 ) 
-	nets.push_back(int2net_fixme[*(adj[i].begin())]);
-      else
-	if( i+1<=V) nets.push_back(int2net_fixme[i+1]);
-      */
-      
-    
-    
+    // std::cout << nets.size() << std::endl;
     return nets;        
 }
 
-//void Graph::addEdge(int v, int w)
 
-/*
-void Graph::dump() {
-   for(int i=0;i<V;i++) {
-      std::cout << i << int2net_fixme[i]->get_name() << std::endl;
-        
-}*/
+void Graph::decrease_refnums(ZNet* n) {
 
+    int i = create_or_get_net2int_mapping(n);
+    for(list<int>::iterator j = adj[i].begin(); j!=adj[i].end(); ++j) {
+      std::cout << n->get_name() << " decr Refnum of " << int2net_fixme[*j]->get_name() << std::endl;
+      fixme[*j]--;
+    }
+   
+}
+
+
+void Graph::return_back(ZNet* n) {
+  fixme[fixme_net2int[n]]=0;
+}
+  
 void Graph::addEdge(ZNet* v, ZNet* w)
 {
     
