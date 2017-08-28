@@ -7,7 +7,7 @@
 
 Graph::Graph(int V)
 {
-    this->V = V-1;
+    this->V = V;
     adj = new list<int>[V];
     n = -1;
  
@@ -28,12 +28,12 @@ int Graph::create_or_get_net2int_mapping(ZNet* net) {
 
 
 std::vector<ZNet*> Graph::get_top_nets() {
-  std::cout << "!!!!!!!!!!!!!!!!!!!!!!! get top nets " << std::endl;
+  //std::cout << "!!!!!!!!!!!!!!!!!!!!!!! get top nets " << std::endl;
   std::vector<ZNet*> nets;
     
   
     for(int i=0;i<V;i++) {
-      std::cout << int2net_fixme[i]->get_name() << "---> " << fixme[i] << std::endl;
+      //std::cout << int2net_fixme[i]->get_name() << "---> " << fixme[i] << std::endl;
       if ( fixme[i] == 0 ) {
         fixme[i]=-1;
         nets.push_back(int2net_fixme[i]);
@@ -63,7 +63,7 @@ void Graph::decrease_refnums(ZNet* n) {
 
     int i = create_or_get_net2int_mapping(n);
     for(list<int>::iterator j = adj[i].begin(); j!=adj[i].end(); ++j) {
-      std::cout << n->get_name() << " decr Refnum of " << int2net_fixme[*j]->get_name() << std::endl;
+      //std::cout << n->get_name() << " decr Refnum of " << int2net_fixme[*j]->get_name() << std::endl;
       fixme[*j]--;
     }
    
@@ -71,7 +71,9 @@ void Graph::decrease_refnums(ZNet* n) {
 
 
 void Graph::return_back(ZNet* n) {
-  fixme[fixme_net2int[n]]=0;
+  
+     std::cout<<"     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Rollback: " << n->get_name() << std::endl;
+    fixme[fixme_net2int[n]]=0;
 }
   
 void Graph::addEdge(ZNet* v, ZNet* w)

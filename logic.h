@@ -110,7 +110,7 @@ struct comparator
 {
     inline bool operator() (ZNet* n1, ZNet* n2)
     {
-        std::cout << " Compare " << n1->get_name() <<  ":" << n1->get_closest_term()->col() << " &&& " << n2->get_name() << ":" << n2->get_closest_term()->col() << std::endl;
+        //std::cout << " Compare " << n1->get_name() <<  ":" << n1->get_closest_term()->col() << " &&& " << n2->get_name() << ":" << n2->get_closest_term()->col() << std::endl;
         return (n1->get_closest_term()->col() < n2->get_closest_term()->col());
     }
 };
@@ -261,8 +261,10 @@ class ZChannelRouter
 	    int j=0;
 	    for(i=bottom_terms.begin();i!=bottom_terms.end();++i,++j)
 	      if ( j<top_terms.size() && !(*i)->net()->get_name().empty() && !top_terms[j]->net()->get_name().empty() ) 
-		m_graph->addEdge((*i)->net(),top_terms[j]->net()), std::cout <<(*i)->net()->get_name()  << " " << top_terms[j]->net()->get_name() << " " << std::endl; 
-  ;
+		m_graph->addEdge((*i)->net(),top_terms[j]->net());
+		
+		//std::cout <<(*i)->net()->get_name()  << " " << top_terms[j]->net()->get_name() << " " << std::endl; 
+  
 	}
 
 
@@ -319,7 +321,7 @@ class ZChannelRouter
   private:
 	 void assign_net_to_track(ZNet* N, unsigned int t) { 
             std::cout << "     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Assigned: " << N->get_name() << " -> " << t << std::endl;
-            std::cout << std::endl;
+            //std::cout << std::endl;
             
 	   m_routed_num++; 
            m_net2track[N] = t; 
