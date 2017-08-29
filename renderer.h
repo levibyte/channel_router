@@ -1,14 +1,7 @@
 #ifndef renderer_h
 #define renderer_h
 
-#include <cassert>
-#include <iostream>
-#include <string>
-#include <map>
-
 #include <SDL.h>
-
-
 
 
 const int SCREEN_WIDTH = 640;
@@ -17,14 +10,41 @@ class ZRender
 {
 
   public:
-	ZRender(const char* title) {
-	   init(title);
+	ZRender(){ //const char* title) {
+	   init("FIXME");
            SDL_RenderSetScale(m_render,2.0,2.0);
 
 	}
 
+        void virtual draw() = 0;
 	//void* get_render() { return m_render; }
 	
+        void enter_event_loop() {
+                unsigned int lastTime = 0, currentTime;
+
+                SDL_Event e;
+                bool quit = false;
+                while( !quit )
+                {
+                        currentTime = SDL_GetTicks();
+                        if (currentTime > lastTime + 100) {
+
+                            while( SDL_PollEvent( &e ) != 0 )
+                            {
+                                    if ( e.type == SDL_QUIT ) quit = true;
+                                    //if ( e.type == SDL_MOUSEBUTTONDOWN ) notify_mouse_pressed();
+                                    //if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
+                                    //if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_u) {
+                            } 
+                            
+                            draw();
+                            //renderer.draw_rect(10,10,10,10);
+                            lastTime = currentTime;  
+                        }
+                }
+        }
+
+
 	void draw_point(unsigned int x, unsigned int y, unsigned int radius) { 
           SDL_Point center;
           center.x = x;

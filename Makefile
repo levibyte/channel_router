@@ -8,5 +8,6 @@ endif
 
 F=main.cpp graph.cpp
 default:
+	clear
 	rm -rf zRouter.bin
 	g++ -Wfatal-errors -g  $(F) $(INCLS) $(LIBS) -ldl -lrt -o zRouter.bin

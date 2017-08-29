@@ -3,7 +3,7 @@
 #include <limits.h>
 
 #include "graph.h"
-#include "logic.h"
+#include "connectivity.h"
 
 Graph::Graph(int V)
 {
@@ -26,7 +26,6 @@ int Graph::create_or_get_net2int_mapping(ZNet* net) {
 
 
 
-
 std::vector<ZNet*> Graph::get_top_nets() {
   //std::cout << "!!!!!!!!!!!!!!!!!!!!!!! get top nets " << std::endl;
   std::vector<ZNet*> nets;
@@ -40,21 +39,6 @@ std::vector<ZNet*> Graph::get_top_nets() {
       }
     }
     
-    //
-    /*
-    for(int i=0;i<nets.size();i++)
-        for(list<int>::iterator j = adj[i].begin(); j!=adj[i].end(); ++j) fixme[*j]--;
-          //fixme[*j]>0?fixme[*j]--:fixme[*j]=0;
-      
- 
-
-    /* 
-    for(int i=0;i<V;i++) 
-      if (fixme[i] == -1 )
-        for(list<int>::iterator j = adj[i].begin(); j!=adj[i].end(); ++j) fixme[*j]--;
-    /**/
-
-    // std::cout << nets.size() << std::endl;
     return nets;        
 }
 

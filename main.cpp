@@ -1,61 +1,54 @@
-#include "renderer.h"
-#include "logic.h"
+#include "router.h"
+#include "netlist_helper.h"
+#include "interlayer.h"
 
-#include <SDL.h>
+#include "connectivity.h"
 
-
-void enter_event_loop() {
+void other_way(ZChannelRouter& router) {
+  
+    ZNet* a = new ZNet("A");
+        a->add_term(0,z_upper_row);
+        a->add_term(2,z_upper_row);
+            
+    ZNet* b = new ZNet("B");
+        b->add_term(1,z_upper_row);
+        b->add_term(0,z_lower_row);
+        
+    ZNet* c = new ZNet("C");
+        c->add_term(3,z_upper_row);
+        c->add_term(1,z_lower_row);
+        c->add_term(2,z_lower_row);
+        
+        
+  router.add_net_to_route(a);
+  router.add_net_to_route(b);
+  router.add_net_to_route(c);
   
 
 }
 
 
+void second_way(ZChannelRouter& router) {
+    
+    ZNetlisterHelper netlist(&router);  
+            netlist.top_row()    << "N0"   << "N1" << "N4" << "N5" << "N1" << "N6" << "N7" << "N0"  << "N4" << "N9" << "N10" << "N10";
+            netlist.buttom_row() << "N2" << "N3" << "N5" << "N3" << "N5" << "N2" << "N6" << "N8" << "N9" << "N8" <<  "N7" << "N9";
+      
+}
+
 int main( int argc, char* args[] )
 {
-
-	ZRender renderer("ChannelRouter");
+	
         ZChannelRouter router;
-        ZInterLayer il(renderer,&router);
+        ZInterLayer il(&router);
         
-        ZNetlister netlist(&router);  
-               
-               netlist.top_row()    << "N0"   << "N1" << "N4" << "N5" << "N1" << "N6" << "N7" << "N0"  << "N4" << "N9" << "N10" << "N10";
-               netlist.buttom_row() << "N2" << "N3" << "N5" << "N3" << "N5" << "N2" << "N6" << "N8" << "N9" << "N8" <<  "N7" << "N9";
-               
-               
-                  //netlist.top_row() << "F" << "B" << "A" << "" << "" <<  "C" << "A";
-	       //netlist.buttom_row() << "" << "" << "B" << "C" << "C" << "F" << "B";
-          
-	
-	router.route();
+      
+        //other_way(router);
+        second_way(router);
         
-        //il.enter_event_loop();
-	
-        unsigned int lastTime = 0, currentTime;
-
-        SDL_Event e;
-        bool quit = false;
-        while( !quit )
-        {
-                currentTime = SDL_GetTicks();
-                if (currentTime > lastTime + 100) {
-
-                    while( SDL_PollEvent( &e ) != 0 )
-                    {
-                            if ( e.type == SDL_QUIT ) quit = true;
-                            if ( e.type == SDL_MOUSEBUTTONDOWN ) il.change_colors();
-                            //if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
-                            //if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_u) {
-                    } 
-                    
-                    il.draw();
-                    //renderer.draw_rect(10,10,10,10);
-                    lastTime = currentTime;  
-                }
-        }
-
-	
- 
-        renderer.close();
+        router.route();
+        il.start();    
+        il.end();
+        
         return 0;
 }
