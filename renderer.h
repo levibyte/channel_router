@@ -6,7 +6,21 @@
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
-class ZRender
+
+/*
+class ZRenderBase {
+
+public:
+  
+        virtual void draw() = 0;
+	
+	virtual void notify_mouse_pressed(unsigned int) = 0;
+	
+        virtual void void enter_event_loop() = 0;
+}
+*/
+
+class ZRender //: public ZRenderBase
 {
 
   public:
@@ -16,11 +30,11 @@ class ZRender
 
 	}
 
-        virtual void draw() = 0;
+        virtual void draw()  = 0;
 	//void* get_render() { return m_render; }
 	virtual void notify_mouse_pressed(unsigned int) = 0;
 	
-        void enter_event_loop() {
+        virtual void enter_event_loop() {
                 unsigned int lastTime = 0, currentTime;
 
                 SDL_Event e;

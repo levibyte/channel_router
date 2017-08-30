@@ -33,14 +33,21 @@ class ZChannelRouter
 
   
   public:
-        ZChannelRouter():maxtracks(CHANNEL_MAX),m_routed_num(0),m_max_used_track(0),m_is_done(false) {
+        ZChannelRouter():m_terms_stored(false),maxtracks(CHANNEL_MAX),m_routed_num(0),m_max_used_track(0),m_is_done(false) {
 
         }
         
+        void terms_willbe_stored() {
+	  m_terms_stored = true; 
+	}
+	
         void add_net_to_route(ZNet* n) {
           assert(n);
-          assert(!n->get_name().empty());
-          get_or_create_net(n->get_name());
+          //assert(!n->get_name().empty());
+          ZNet* m = get_or_add_net(n);
+	  //std::cout << "!!!!" << m << std::endl;
+	  assert( m == n && "Confused..." );
+	  
           //assert same net
           
           
@@ -53,9 +60,20 @@ class ZChannelRouter
             store_term(t);
         }
     
+	void store_terms() {
+	      for(std::list<ZNet*>::iterator i=m_nets.begin();i!=m_nets.end();++i)
+		store_net_terms(*i); 
+
+	      //assert()
+	}
+	
         void route() {
             m_is_done = false;
-            route_impl();
+            
+	    if ( ! m_terms_stored )
+	      store_terms();
+            
+	    route_impl();
             //assert( m_nets.size() == m_routed_num );
             std::cout << " Missed " << m_nets.size() - m_routed_num << " nets" << std::endl;
             m_is_done = true;
@@ -80,10 +98,10 @@ class ZChannelRouter
         }
         
       unsigned int get_net_track(ZNet* N) {
-          //assert(N);
+          assert(N);
           //assert(N->get_name().empty());
-          //assert(!m_net2track[N]);
-         if (N->get_name().empty()) return 9999999;
+	  
+	  if (N->get_name().empty()) return 9999999;
           //if ( ! m_net2track[N] ) return 9999999;
           
           //std::cout << "Request: " << N->get_name() << "--->" << m_net2track[N]  << std::endl;
@@ -91,10 +109,20 @@ class ZChannelRouter
         }
   
   
-        ZNet* get_or_create_net(const std::string& name) {
+	ZNet* get_or_add_net(ZNet* n) {
+             std::list<ZNet*>::iterator i;
+              
+	      if ( std::find(m_nets.begin(),m_nets.end(),n) == m_nets.end() )
+                m_nets.push_back(n);
+              
+              return n;
+	}
+        
+        ZNet* get_or_create_net_by_name(const std::string& name) {
               //std::cout << "get or create "  << name << std::endl;
               std::list<ZNet*>::iterator i;
               
+	      //fixme use std::find
               bool found = false;
               for(i=m_nets.begin();i!=m_nets.end();++i){
                 if( (*i)->get_name() == name ) {
@@ -181,6 +209,8 @@ class ZChannelRouter
          return false; 
         }
         
+        //fixme greedy router
+        /*
 	bool try_to_assign_net_to_track_if_not_try_other(ZNet* net, unsigned int& track ) {
 	     //track++;
 	    //return true;
@@ -197,7 +227,7 @@ class ZChannelRouter
             
 	    return try_to_assign_net_to_track_if_not_try_other(net,track);
 	}
-	
+	*/
 	
 
 	
@@ -216,22 +246,22 @@ class ZChannelRouter
 	    while( ! m_is_done ) {
 		std::vector<ZNet*> nets = m_graph->get_top_nets();
                 std::cout << "********************************** have " << nets.size() << " TOP nets to route" << std::endl;
-                // not for list :/ 
+        
+		// not for list :/ 
                 //std::sort(nets.begin(), nets.end(),comparator());
                 //nets.sort(comparator());
-		std::vector<ZNet*>::iterator i;
 		
 		if( ! nets.size() ) break;
 		
-		for(i=nets.begin();i!=nets.end();++i) {
+		for(std::vector<ZNet*>::iterator i=nets.begin();i!=nets.end();++i) {
+		    assert( *i );
 		    if ( try_to_assign(*i, c_track) ) 
                       m_graph->decrease_refnums(*i);
                     else
                       m_graph->return_back(*i);
                 }        
-                       
 
-		c_track++;
+           c_track++;
 	   }
 	}
 	
@@ -270,6 +300,8 @@ class ZChannelRouter
   private:
     
          bool m_is_done;
+	 bool m_terms_stored;
+	 
          std::map<ZNet*,unsigned int> m_net2track;
 	 std::map<unsigned int,std::vector<ZNet*> > m_track2nets;
 	 

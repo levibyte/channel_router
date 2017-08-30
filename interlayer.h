@@ -82,13 +82,14 @@ class ZInterLayer : public ZRender {
             //std::cout << " drawrect " <<  t->col() << "---" <<  t->row() << std::endl;
             //draw_rect(20*t->col()+20,100*t->row()+20, 10, 10);
               draw_square(col_to_x(t->col()),row_to_y(!t->row()?0:m_router
-              ->get_maxtracks()+1),10);
+              ->get_maxtracks()+1),3);
+	      //fixme term_size
             //m_renderer->draw_text(t.row,)
           }
 
           void draw_routed_segments(ZNet* n) {
               if (m_router->get_net_track(n))
-              draw_net_trunk_on_track(n);
+		draw_net_trunk_on_track(n);
               //draw_extensions(n);
               //draw_intersection_points();
           }
