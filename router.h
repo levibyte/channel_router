@@ -52,7 +52,7 @@ class ZChannelRouter
           
           
           //m_nets.push_back(n);
-          //add_term_to_net(net,buttom_num,z_lower_row);
+          //add_term_to_net(net,buttom_num,ZLowerTerm);
         }
         
         void add_term_to_net(ZNet* N,unsigned int col, ZTermOrientation o) {
@@ -154,7 +154,7 @@ class ZChannelRouter
 	
 	
 	 void store_term(ZTerm* t) {
-           if ( t->row() == z_lower_row )
+           if ( t->row() == ZLowerTerm )
                 top_terms.push_back(t);
             else
                 bottom_terms.push_back(t);

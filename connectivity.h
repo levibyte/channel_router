@@ -5,7 +5,7 @@
 
 const int CHANNEL_MAX=30;
 
-enum ZTermOrientation { z_lower_row = CHANNEL_MAX, z_upper_row = 0  };
+enum ZTermOrientation { ZLowerTerm = CHANNEL_MAX, ZUpperTerm = 0  };
 
 class ZNet;
 

@@ -63,13 +63,13 @@ class ZNetlisterHelper
             
             
             ZRow1 top_row() {
-                //add_term(stream.str(),top_num,z_lower_row); 
+                //add_term(stream.str(),top_num,ZLowerTerm); 
                 //top_num++;
                 return ZRow1(this);
             }
             
             ZRow3 buttom_row()  {
-                //add_term(name,buttom_num,z_upper_row); 
+                //add_term(name,buttom_num,ZUpperTerm); 
                 //buttom_num++;
                 return ZRow3(this);
             }
@@ -78,7 +78,7 @@ class ZNetlisterHelper
                 // if (name.empty()) return;
                 
                 ZNet* net = m_router->get_or_create_net_by_name(name);
-                m_router->add_term_to_net(net,top_num,z_upper_row); 
+                m_router->add_term_to_net(net,top_num,ZUpperTerm); 
                 //std::cout << " Adding buttom term " << name << " " << top_num << std::endl;
                 top_num++;
             }
@@ -86,7 +86,7 @@ class ZNetlisterHelper
            void add_term2(const std::string& name) {
                  //if (name.empty()) return;
                  ZNet* net = m_router->get_or_create_net_by_name(name);
-                 m_router->add_term_to_net(net,buttom_num,z_lower_row);
+                 m_router->add_term_to_net(net,buttom_num,ZLowerTerm);
                 
                   //std::cout << " Adding lower term " << name << " " << buttom_num << std::endl;
                   buttom_num++;
