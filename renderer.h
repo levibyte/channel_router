@@ -16,8 +16,9 @@ class ZRender
 
 	}
 
-        void virtual draw() = 0;
+        virtual void draw() = 0;
 	//void* get_render() { return m_render; }
+	virtual void notify_mouse_pressed(unsigned int) = 0;
 	
         void enter_event_loop() {
                 unsigned int lastTime = 0, currentTime;
@@ -32,7 +33,9 @@ class ZRender
                             while( SDL_PollEvent( &e ) != 0 )
                             {
                                     if ( e.type == SDL_QUIT ) quit = true;
-                                    //if ( e.type == SDL_MOUSEBUTTONDOWN ) notify_mouse_pressed();
+                                    if ( e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT ) notify_mouse_pressed(1);
+				    if ( e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_RIGHT ) notify_mouse_pressed(0);
+				    
                                     //if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
                                     //if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_u) {
                             } 

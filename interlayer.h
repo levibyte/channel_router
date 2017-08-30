@@ -15,17 +15,17 @@
 class ZInterLayer : public ZRender {
   
   public:
-         ZInterLayer (ZChannelRouter* ro):m_router(ro) {
+         ZInterLayer (ZChannelRouter* ro):m_metalmode(false),m_router(ro) {
             //ZRenderer re(this) = m_renderer;
             
          }
          
          void start() {
-              enter_event_loop();
+              ZRender::enter_event_loop();
          }
          
          void end() {
-              close();
+              ZRender::close();
          }
          
          virtual void draw() {
@@ -35,8 +35,11 @@ class ZInterLayer : public ZRender {
           }
           
          
-         virtual void mouse_button_pressed() {
-           
+         virtual void notify_mouse_pressed(unsigned int btn) {
+	   if ( 1 == btn )  
+	     m_metalmode = false,change_colors();
+	   else
+	     m_metalmode = true;
          }
           
           void change_colors() {
@@ -46,7 +49,7 @@ class ZInterLayer : public ZRender {
 
   private:
           void draw_tracks() {
-              set_drawing_color(30,2,2);
+              set_drawing_color(10,2,2);
               for(unsigned int i=m_router->get_maxtracks();i>0;i--) 
                 draw_line(0,row_to_y(i),400,row_to_y(i));
           }
@@ -59,7 +62,7 @@ class ZInterLayer : public ZRender {
           }
           
           void draw_individual_net(ZNet* net) {
-              pick_color_for_net(net);
+              m_metalmode?set_drawing_color(255,255,0):pick_color_for_net(net);
               
               draw_terms(net->get_terms());
               if ( m_router->is_done() ) 
@@ -95,8 +98,12 @@ class ZInterLayer : public ZRender {
               unsigned int c1 = n->get_closest_term()->col();
               unsigned int c2 = n->get_farest_term()->col();
 
-              set_drawing_color(m_net2color[n].r,m_net2color[n].g,m_net2color[n].b);
-              //draw_line(0,10*i+50,20+300,10*i+50);
+              if( !m_metalmode )
+		set_drawing_color(m_net2color[n].r,m_net2color[n].g,m_net2color[n].b);
+              else
+		set_drawing_color(0,0,255);
+		
+	      //draw_line(0,10*i+50,20+300,10*i+50);
 
               //std::cout << "Net:" << n->get_name() << " track:" << t << "  (" << c1 << "->" << c2 << ")" << std::endl;
               //20*t->col()+20,100*t->row()+20
@@ -181,6 +188,7 @@ class ZInterLayer : public ZRender {
       ZChannelRouter* m_router;
       std::map<ZNet*, ZColor> m_net2color;
 
+      bool m_metalmode;
 };
 
 #endif

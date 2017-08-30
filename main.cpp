@@ -20,9 +20,9 @@ void other_way(ZChannelRouter& router) {
         c->add_term(2,z_lower_row);
         
         
-  router.add_net_to_route(a);
-  router.add_net_to_route(b);
-  router.add_net_to_route(c);
+    router.add_net_to_route(a);
+    router.add_net_to_route(b);
+    router.add_net_to_route(c);
   
 
 }
@@ -30,10 +30,11 @@ void other_way(ZChannelRouter& router) {
 
 void second_way(ZChannelRouter& router) {
     
-    ZNetlisterHelper netlist(&router);  
-            netlist.top_row()    << "N0"   << "N1" << "N4" << "N5" << "N1" << "N6" << "N7" << "N0"  << "N4" << "N9" << "N10" << "N10";
-            netlist.buttom_row() << "N2" << "N3" << "N5" << "N3" << "N5" << "N2" << "N6" << "N8" << "N9" << "N8" <<  "N7" << "N9";
+    ZNetlisterHelper nh(&router);  
+            nh.top_row()    << "N0" << "N1" << "N4" << "N5" << "N1" << "N6" << "N7" << "N0" << "N4" << "N9" << "N10" << "N10";
+            nh.buttom_row() << "N2" << "N3" << "N5" << "N3" << "N5" << "N2" << "N6" << "N8" << "N9" << "N8" <<  "N7" << "N9";
       
+    //router.load(nh.get());	      
 }
 
 int main( int argc, char* args[] )
