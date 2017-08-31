@@ -81,7 +81,38 @@ or more "manual" way, adding each invidual net and it's corresponding terminal o
 
 Copy/Paste code Example.
 ---
-See main.cpp
+```
+          #include "router.h"
+          #include "netlist_helper.h"
+          #include "interlayer.h"
+          #include "connectivity.h"
+
+          int main( int argc, char* args[] )
+          {
+
+
+                  ZChannelRouter router;
+
+                  //rendering and router inerterlayer
+                  ZInterLayer il(&router);
+
+                  //helper
+                  ZNetlisterHelper nh(&router);  
+                      nh.top_row()    << "A" << "B" << "A" << "C";
+                      nh.buttom_row() << "B" << "C" << "C" << ;
+
+                  router.route();         
+
+                  // start process events
+                  il.start();    
+
+                  // close when quit
+                  il.end();
+
+                  return 0;
+          }
+
+```
 
 
 Limitations.
