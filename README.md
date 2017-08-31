@@ -4,24 +4,21 @@ Channel Router (VLSI)
 What is this.
 ---
 
-This is just-for-fun educational project to design, implement and render 
-some of the channel routing algorithms, the most commonly used routing strategy for VLSI routing.
-
-There are several algorihtms used in channel routing, 
-and this "library" implements most popular ones: leftEdge and greedy routing.
+This is just-for-fun educational project to design, implement and render some of the channel routing algorithms, the most commonly used routing strategy for VLSI routing. There are several algorihtms used in channel routing,  and this "library" implements most popular ones: leftEdge and greedy routing.
 
 Concept is having row of terminals seperated by "gap" called channel. 
-Aim is to ... so no vertial and horizontal lines overlap
+Aim is route each connection in the chhanel so no vertial and horizontal lines overlap
 
 
 Example.
 ---
-Input:
+_Input:_
+
 Upper Row: N0 N1 N4 N5 N1 N6 N7 N0 N4 N9 N10 N10
 
 Lower Row: N2 N3 N5 N3 N5 N2 N6 N8 N9 N8 N7 N9
 
-Ouput:
+_Ouput:_
 
 <img src="https://image.ibb.co/dGNx45/5555.png">
 
@@ -31,8 +28,9 @@ Assuming tracks are on metal1 , segments are on metal2.
 
 <img src="https://image.ibb.co/dDqs45/2222.png">
 
-Acutal drawing ( interlayer.h ) is library independed, but current implementation is
-using SDL as base renderer. Dependcy kept minimal , so it should be very easy to port this to Qt or to other library.
+Acutal drawing ( interlayer.h ) is library independed, 
+but current implementation is using SDL as base renderer.
+Dependcy kept minimal , so it should be very easy to port this to Qt or to other library.
 
 Code interfaces.
 ---
