@@ -4,11 +4,14 @@ Channel Router (VLSI)
 What is this.
 ---
 
-This is just-for-fun educational project to design,m implement and render 
+This is just-for-fun educational project to design, implement and render 
 some of the channel routing algorithms, the most commonly used routing strategy for VLSI routing.
 
-There are several algorihtms used in channel routing, t
-his examples provides most popular ones: leftEdge and greedy routing.
+There are several algorihtms used in channel routing, 
+and this "library" implements most popular ones: leftEdge and greedy routing.
+
+Concept is having row of terminals seperated by "gap" called channel. 
+Aim is to ... so no vertial and horizontal lines overlap
 
 
 Example.
@@ -23,6 +26,7 @@ Ouput:
 <img src="https://image.ibb.co/dGNx45/5555.png">
 
 Also it is possible to have metal view rendering ( leftclick ). 
+
 Assuming tracks are on metal1 , segments are on metal2.
 
 <img src="https://image.ibb.co/dDqs45/2222.png">
@@ -36,9 +40,12 @@ Code interfaces.
 Input to the router should be nets, 
 and where every net could have terminal assigned to lower or upper row.
 
-Eficient way to do
+Eficient way to provide input to the router is to use netlist helper utility class,
 
 ```
+     #include "router.h"
+     #include "netlist_helper.h"
+
      ZChannelRouter router;
      ZNetlisterHelper nh(&router);  
             nh.top_row()    << "N0" << "N1" << "N4" << "N5" << "N1" << "N6" << "N7" << "N0" << "N4" << "N9" << "N10" << "N10";
@@ -51,6 +58,8 @@ Eficient way to do
 or more "manual" way, adding each invidual net and it's corresponding terminal one by one.
 
 ```
+     #include "router.h"
+
      ZChannelRouter router;
      ZNet* a = new ZNet("A");
         a->add_term(0,ZUpperTerm);
