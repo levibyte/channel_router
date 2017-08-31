@@ -1,12 +1,15 @@
 Channel Router (VLSI)
 ===
-This is just-for-fun educational project to design implement and render 
-channel routing algorithm,the most commonly used routing strategy for VLSI routing.
 
-There is several algorihtms used in channel routing, Implementing leftEdge and greedy
+What is this.
+---
 
-Acutal drawing ( interlayer.h ) is library independed, but current implementation is
-using SDL as base renderer. Dependcy kept minimal , so should be very easy to port to Qt or other library.
+This is just-for-fun educational project to design,m implement and render 
+some of the channel routing algorithms, the most commonly used routing strategy for VLSI routing.
+
+There are several algorihtms used in channel routing, t
+his examples provides most popular ones: leftEdge and greedy routing.
+
 
 Example.
 ---
@@ -17,18 +20,23 @@ Lower Row: N2 N3 N5 N3 N5 N2 N6 N8 N9 N8 N7 N9
 
 Ouput:
 
-<img src="https://image.ibb.co/cudUj5/13.png">
+<img src="https://image.ibb.co/dGNx45/5555.png">
 
 Also it is possible to have metal view rendering ( leftclick ). 
 Assuming tracks are on metal1 , segments are on metal2.
 
 <img src="https://image.ibb.co/dDqs45/2222.png">
 
+Acutal drawing ( interlayer.h ) is library independed, but current implementation is
+using SDL as base renderer. Dependcy kept minimal , so it should be very easy to port this to Qt or to other library.
 
 Code interfaces.
 ---
 
-Input to the router should be nets, and where every net could have terminal assigned to ....
+Input to the router should be nets, 
+and where every net could have terminal assigned to lower or upper row.
+
+Eficient way to do
 
 ```
      ZChannelRouter router;
@@ -40,7 +48,7 @@ Input to the router should be nets, and where every net could have terminal assi
     router.route();	    
 ```
 
-or more "manual" way, adding each invidual net and it's corresponding terminal one by one
+or more "manual" way, adding each invidual net and it's corresponding terminal one by one.
 
 ```
      ZChannelRouter router;
@@ -63,6 +71,10 @@ or more "manual" way, adding each invidual net and it's corresponding terminal o
   
     router.route();
 ```
+
+Copy/Paste code Example.
+---
+See main.cpp
 
 
 Limitations.
