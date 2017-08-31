@@ -14,9 +14,9 @@ Example.
 ---
 _Input:_
 
-Upper Row: N0 N1 N4 N5 N1 N6 N7 N0 N4 N9 N10 N10
+     Upper Row: N0 N1 N4 N5 N1 N6 N7 N0 N4 N9 N10 N10
 
-Lower Row: N2 N3 N5 N3 N5 N2 N6 N8 N9 N8 N7 N9
+     Lower Row: N2 N3 N5 N3 N5 N2 N6 N8 N9 N8 N7 N9
 
 _Ouput:_
 
