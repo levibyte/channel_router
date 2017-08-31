@@ -82,46 +82,45 @@ or more "manual" way, adding each invidual net and it's corresponding terminal o
 Copy/Paste code Example.
 ---
 ```
-          #include "router.h"
-          #include "netlist_helper.h"
-          #include "interlayer.h"
-          #include "connectivity.h"
+     #include "router.h"
+     #include "netlist_helper.h"
+     #include "interlayer.h"
+     #include "connectivity.h"
 
-          int main( int argc, char* args[] )
-          {
+     int main( int argc, char* args[] )
+     {
 
+          ZChannelRouter router;
 
-                  ZChannelRouter router;
+          //rendering and router inerterlayer
+          ZInterLayer il(&router);
 
-                  //rendering and router inerterlayer
-                  ZInterLayer il(&router);
+          //helper
+          ZNetlisterHelper nh(&router);  
+          nh.top_row()    << "A" << "B" << "A" << "C";
+          nh.buttom_row() << "B" << "C" << "C" << ;
 
-                  //helper
-                  ZNetlisterHelper nh(&router);  
-                      nh.top_row()    << "A" << "B" << "A" << "C";
-                      nh.buttom_row() << "B" << "C" << "C" << ;
+          router.route();         
 
-                  router.route();         
+          // start process events
+          il.start();    
 
-                  // start process events
-                  il.start();    
+          // close when quit
+          il.end();
 
-                  // close when quit
-                  il.end();
-
-                  return 0;
-          }
+          return 0;
+     }
 
 ```
 
 
 Limitations.
 ---
-TODO
+Left edge algorithm can not be used if VCG containts cycle.
 
 Dependencies.
 ---
-TODO
+libSDL2.a , included in the package
 
 
 
