@@ -2,6 +2,7 @@
 #define renderer_h
 
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 
 const int SCREEN_WIDTH = 640;
@@ -26,7 +27,7 @@ class ZRender //: public ZRenderBase
   public:
 	ZRender(){ //const char* title) {
 	   init("FIXME");
-           //SDL_RenderSetScale(m_render,2.0,2.0);
+           SDL_RenderSetScale(m_render,1,1);
 
 	}
 
@@ -36,7 +37,7 @@ class ZRender //: public ZRenderBase
 	
         virtual void enter_event_loop() {
                 unsigned int lastTime = 0, currentTime;
-
+// 
                 SDL_Event e;
                 bool quit = false;
                 while( !quit )
@@ -96,11 +97,24 @@ class ZRender //: public ZRenderBase
 
 	SDL_Window* m_window;
 	SDL_Renderer* m_render;
+	TTF_Font* m_ttf_font;
+	
 
 	bool init(const char* title)
 	{
 	      bool success = true;
 	      
+	      if(!TTF_WasInit() && TTF_Init()==-1) {
+		  printf("TTF_Init: %s\n", TTF_GetError());
+		  exit(1);
+	      }
+	      
+	      m_ttf_font = TTF_OpenFont("./deps/FreeSans.ttf", 10); 
+ 	      if(!m_ttf_font) {  
+		printf("TTF_OpenFont: %s\n", TTF_GetError());
+		//exit(1);
+	      }
+      
 	      //Initialize SDL
 	      if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
 	      {
@@ -170,11 +184,14 @@ class ZRender //: public ZRenderBase
 
 
 
-	    void draw_text(const char* s, const SDL_Point& p )
+	    void draw_text(const char* s, unsigned int y, unsigned int x)
 	    {
-		  /*
-		  SDL_Color c = {0, 0, 0};  
-		  SDL_Surface* surfaceMessage = TTF_RenderText_Solid(m_ttf_font, s.c_str(), c); 
+		  
+		  SDL_Point p;
+		  p.x=x;
+		  p.y=y;
+		  SDL_Color c = {255, 0, 0};  
+		  SDL_Surface* surfaceMessage = TTF_RenderText_Solid(m_ttf_font, s , c); 
 		  SDL_Texture* Message = SDL_CreateTextureFromSurface(m_render, surfaceMessage); 
 
 		  SDL_Rect Message_rect; 
@@ -184,7 +201,7 @@ class ZRender //: public ZRenderBase
 		  Message_rect.h = 20; 
 
 		  SDL_RenderCopy(m_render, Message, NULL, &Message_rect); 
-		  */
+		  
 	      
 	    }
 

@@ -16,7 +16,11 @@ class ZTerm
             ZTerm(unsigned int col,ZTermOrientation orient,ZNet* net):m_colnum(col),m_orient(orient),m_owner_net(net) {
                 //std::cout << m_
             }
-            
+           
+            ZTerm(unsigned int col,ZTermOrientation orient,ZNet* net,const char* name):m_colnum(col),m_orient(orient),m_owner_net(net),m_name(name) {
+                //std::cout << m_
+            }
+           
             ZTerm(const char* name, unsigned int col,ZTermOrientation orient):m_name(name),m_colnum(col),m_orient(orient),m_owner_net(0) {
                 //std::cout << m_
             }
@@ -76,7 +80,7 @@ class ZInst
 	  public:
 		ZInstTerm(ZInst* i,ZTerm* t):m_inst(i),m_term(t) {}
 		unsigned int col() { return inst()->col() + term()->col(); }
-		unsigned int row() { return term()->row(); }
+		//unsigned int row() { return term()->row(); }
 	
 		ZInst* inst() { return m_inst; }
 		ZTerm* term() { return m_term; }
@@ -87,7 +91,7 @@ class ZInst
       };
 
     public:
-	  ZInst(const char* n,ZRef* m, unsigned int r, unsigned int c):m_name(n),m_master(m),m_row(r),m_col(c) {
+	  ZInst(const char* n,ZRef* m, unsigned int c, unsigned int r):m_name(n),m_master(m),m_row(r),m_col(c) {
 	      std::vector<ZTerm*> terms = m->get_terms();
 	      for (std::vector<ZTerm*>::iterator i = terms.begin(); i!=terms.end(); ++i ) {
 		ZInstTerm * inst_t = new ZInstTerm(this,*i);

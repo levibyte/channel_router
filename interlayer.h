@@ -89,7 +89,9 @@ class ZInterLayer : public ZRender {
               draw_square(col_to_x(t->col()),row_to_y(!t->row()?0:m_router
               ->get_maxtracks()+1),term_shape_rect_size);
 	      //fixme term_size
-            //m_renderer->draw_text(t.row,)
+	      
+	      draw_text(t->name().c_str(),col_to_x(t->col()),row_to_y(!t->row()?0:m_router
+              ->get_maxtracks()+1));
           }
 
           void draw_routed_segments(ZNet* n) {

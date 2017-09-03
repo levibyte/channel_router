@@ -22,14 +22,17 @@ class ZNet
             
           }
           
-          void add_term(ZInst::ZInstTerm* term) {
-	      assert(term);
-	      add_term(term->col(),term->term()->row()?ZUpperTerm:ZLowerTerm);
+          //fixme!
+          void add_term(ZInst::ZInstTerm* instterm) {
+	      assert(instterm);
+	      add_term(instterm->col(),instterm->term()->row()?ZLowerTerm:ZUpperTerm,instterm->term()->name().c_str());
 	  }
           
-          ZTerm* add_term(unsigned int c, ZTermOrientation o) {
+          //fixme!
+          ZTerm* add_term(unsigned int c, ZTermOrientation o, const char* n = "?") {
               //std::cout << "Nearest:" << m_closest_term<< " Farest:" << m_farest_term << std::endl;
-              ZTerm* t = new ZTerm(c,o,this);
+              
+              ZTerm* t = new ZTerm(c,o,this,n);
               //terms.push_back(t);
 	      //m_terms_count++;
 	      
