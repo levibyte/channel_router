@@ -1,31 +1,13 @@
 #ifndef connectivity_h
 #define connectivity_h
 
+
+#include "objects.h"
+
 #include <cassert>
+#include <string>
+#include <list>
 
-const int CHANNEL_MAX=30;
-
-enum ZTermOrientation { ZLowerTerm = CHANNEL_MAX, ZUpperTerm = 0  };
-
-class ZNet;
-
-class ZTerm
-{
-    public:
-            ZTerm(unsigned int col,ZTermOrientation orient,ZNet* net):m_colnum(col),m_orient(orient),m_owner_net(net) {
-                //std::cout << m_
-            }
-                 
-            ZNet* net() { return  m_owner_net; }     
-            unsigned int col() { return m_colnum; }
-            unsigned int row() { return m_orient; }
-    private:
-            unsigned int m_colnum;
-            ZTermOrientation m_orient;
-            ZNet* m_owner_net;
-            //unsigned int x;
-            //unsigned int y;
-};
 
 
 class ZNet 
@@ -33,18 +15,32 @@ class ZNet
     
     public:
           //get_terms()
-          ZNet (const std::string& str ):m_name(str) { 
+          ZNet (const std::string& str ):m_terms_count(0),m_name(str) { 
               m_farest_term = 0;
               m_closest_term = 0;
               is_first_term = true;
             
           }
           
+          void add_term(ZInst::ZInstTerm* term) {
+	      assert(term);
+	      add_term(term->col(),term->term()->row()?ZUpperTerm:ZLowerTerm);
+	  }
+          
           ZTerm* add_term(unsigned int c, ZTermOrientation o) {
               //std::cout << "Nearest:" << m_closest_term<< " Farest:" << m_farest_term << std::endl;
               ZTerm* t = new ZTerm(c,o,this);
+              //terms.push_back(t);
+	      //m_terms_count++;
+	      
+	      return add_term_base(t);
+	  }
+	  
+          ZTerm* add_term_base(ZTerm* t) {
               terms.push_back(t);
-              
+	      m_terms_count++;
+	      unsigned int c = t->col();
+	      
               if ( is_first_term ) {
                 m_closest_term = t;
                 m_farest_term = t;
@@ -56,8 +52,10 @@ class ZNet
               if ( m_farest_term && c > m_farest_term->col()) m_farest_term = t;
               
               return t;
-          }
-          
+
+	  }
+
+	  
           std::list<ZTerm*> get_terms() {
               return terms;
           }
@@ -79,6 +77,9 @@ class ZNet
           //    return (key < str.key);
           //}
     
+	  unsigned int terms_count() {
+	      return m_terms_count;
+	  }
     private:
           //std::list<ZTerm*> terms;
          
@@ -87,11 +88,35 @@ class ZNet
           bool is_first_term;
           
           std::list<ZTerm*> terms;
+	  unsigned int m_terms_count;
+	  
           std::string m_name;
 };
 
 
 
+/*
+class ZInstTerm 
+{
+    public:
+	  ZInstTerm(ZInst* i,ZTerm* t):m_inst(i),m_term(t) {}
+	  unsigned int col();
+	  unsigned int row();
+  
+	  ZInst* inst();
+	  ZTerm* term();
+	  
+    private:
+	  ZInst* m_inst;
+	  ZTerm* m_term;
+};
+
+unsigned int ZInstTerm::col() { return inst()->col() + term()->col(); }
+unsigned int ZInstTerm::row() { return inst()->row() + term()->row(); }
+ZInst* ZInstTerm::inst() { return m_inst; }
+ZTerm* ZInstTerm::term() { return m_term; }	  
+
+*/
 
 
 

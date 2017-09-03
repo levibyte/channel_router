@@ -26,7 +26,7 @@ class ZRender //: public ZRenderBase
   public:
 	ZRender(){ //const char* title) {
 	   init("FIXME");
-           SDL_RenderSetScale(m_render,2.0,2.0);
+           //SDL_RenderSetScale(m_render,2.0,2.0);
 
 	}
 
@@ -62,11 +62,12 @@ class ZRender //: public ZRenderBase
         }
 
 
-	void draw_point(unsigned int x, unsigned int y, unsigned int radius) { 
+	void draw_point(unsigned int y, unsigned int x, unsigned int radius) { 
           SDL_Point center;
           center.x = x;
           center.y = y;
-          draw_circle(center,radius);
+
+	  draw_circle(center,radius);
 	  
 	}
 	
@@ -74,7 +75,7 @@ class ZRender //: public ZRenderBase
             SDL_SetRenderDrawColor(m_render,r,g,b,255);
         }
         
-        void draw_square(unsigned int x, unsigned int y, unsigned int delta) {
+        void draw_square(unsigned int y, unsigned int x, unsigned int delta) {
           SDL_Rect rectToDraw = {x-delta,y-delta,2*delta,2*delta};
           //std::cout << rectToDraw.x << " " << rectToDraw.y << " " << rectToDraw.x+rectToDraw.w << " " << rectToDraw.y+rectToDraw.h << " " << std::endl;   
           SDL_RenderDrawRect(m_render,&rectToDraw);
@@ -188,7 +189,7 @@ class ZRender //: public ZRenderBase
 	    }
 
 
-	  void draw_line(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2) {
+	  void draw_line(unsigned int y1, unsigned int x1, unsigned int y2, unsigned int x2) {
 	      /*SDL_Point a;
 	      SDL_Point b;
 	      a.x=x1;

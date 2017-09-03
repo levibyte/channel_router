@@ -26,8 +26,6 @@ struct comparator
     }
 };
 /**/
-
-
 class ZChannelRouter
 {
 
@@ -36,7 +34,9 @@ class ZChannelRouter
         ZChannelRouter():m_terms_stored(false),maxtracks(CHANNEL_MAX),m_routed_num(0),m_max_used_track(0),m_is_done(false) {
 
         }
-        
+
+        virtual void route_impl() = 0; 
+	
         void terms_willbe_stored() {
 	  m_terms_stored = true; 
 	}
@@ -68,13 +68,17 @@ class ZChannelRouter
 	}
 	
         void route() {
-            m_is_done = false;
+	    std::cout << " Nets to route: " << m_nets.size() << std::endl;
+	    m_is_done = false;
             
 	    if ( ! m_terms_stored )
 	      store_terms();
+
+	      /****************************** START ***** */
+	      route_impl();
+	      /**************************************** */
             
-	    route_impl();
-            //assert( m_nets.size() == m_routed_num );
+	     //assert( m_nets.size() == m_routed_num );
             std::cout << " Missed " << m_nets.size() - m_routed_num << " nets" << std::endl;
             m_is_done = true;
           
@@ -151,9 +155,7 @@ class ZChannelRouter
           
         }
             
-	
-	
-	 void store_term(ZTerm* t) {
+	void store_term(ZTerm* t) {
            if ( t->row() == ZLowerTerm )
                 top_terms.push_back(t);
             else
@@ -182,6 +184,7 @@ class ZChannelRouter
               return true;
 	}
 	
+      public:
 	bool check_can_be_assigned_on_track(ZNet* n, unsigned t) {
 	  std::vector<ZNet*> routed_nets = m_track2nets[t];
 	  std::vector<ZNet*>::iterator i;
@@ -197,6 +200,7 @@ class ZChannelRouter
 	  
 	  
 	  return true;
+
 	}
 	
 	
@@ -209,80 +213,9 @@ class ZChannelRouter
          return false; 
         }
         
-        //fixme greedy router
-        /*
-	bool try_to_assign_net_to_track_if_not_try_other(ZNet* net, unsigned int& track ) {
-	     //track++;
-	    //return true;
-	     //std::cout << " Trying " << net->get_name() << " on track " << track << std::endl;
-             
-	    if ( track > CHANNEL_MAX ) return false;
-	    
-	    if ( check_can_be_assigned_on_track(net,track) ) {
-	      assign_net_to_track(net,track); 
-	      return true;
-	    }
-	    	  
-	    track++;	  
-            
-	    return try_to_assign_net_to_track_if_not_try_other(net,track);
-	}
-	*/
-	
-
-	
-	void route_impl() {
-	   
-	    std::cout << " Nets to route: " << m_nets.size() << std::endl;
-
-            create_vcg();
-	    if ( m_graph->isCyclic() ) { 
-		std::cout << "cycles found , can't route" << std::endl;
-		return;
-	    }
-
-	    //bool 
-            unsigned int c_track=1;
-	    while( ! m_is_done ) {
-		std::vector<ZNet*> nets = m_graph->get_top_nets();
-                std::cout << "********************************** have " << nets.size() << " TOP nets to route" << std::endl;
-        
-		// not for list :/ 
-                //std::sort(nets.begin(), nets.end(),comparator());
-                //nets.sort(comparator());
-		
-		if( ! nets.size() ) break;
-		
-		for(std::vector<ZNet*>::iterator i=nets.begin();i!=nets.end();++i) {
-		    assert( *i );
-		    if ( try_to_assign(*i, c_track) ) 
-                      m_graph->decrease_refnums(*i);
-                    else
-                      m_graph->return_back(*i);
-                }        
-
-           c_track++;
-	   }
-	}
-	
-	
-	
-	
-	void create_vcg() {
-	    m_graph = new Graph(m_nets.size());
-	    std::vector<ZTerm*>::iterator i;
-	    int j=0;
-	    for(i=bottom_terms.begin();i!=bottom_terms.end();++i,++j)
-	      if ( j<top_terms.size() && !(*i)->net()->get_name().empty() && !top_terms[j]->net()->get_name().empty() ) 
-		m_graph->addEdge((*i)->net(),top_terms[j]->net());
-		
-		//std::cout <<(*i)->net()->get_name()  << " " << top_terms[j]->net()->get_name() << " " << std::endl; 
-  
-	}
-
 
         
-  private:
+  //private:
 	 void assign_net_to_track(ZNet* N, unsigned int t) { 
             std::cout << "     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Assigned: " << N->get_name() << " -> " << t << std::endl;
             //std::cout << std::endl;
@@ -309,7 +242,6 @@ class ZChannelRouter
 	 unsigned int m_routed_num;
 	 unsigned int m_max_used_track;
 	 //class Graph<ZNet*>;
-	 Graph* m_graph;
 	
          
          
@@ -324,8 +256,117 @@ class ZChannelRouter
 
 
 
+/*
+class ZUnefficentChannelRouter: public ZGreedyChannelRouter {
+    public:
+	    virtual void route_impl() {
+	    	      unsigned int c_track = 1;
+		      std::list<ZNet*> nets = get_nets();
+		      for(std::list<ZNet*>::iterator i=nets.begin();i!=nets.end();++i) 
+			try_to_assign_net_to_track_if_not_try_next_track(*i,c_track);
+	    }
+};
+*/
+
+class ZGreedyChannelRouter: public ZChannelRouter {
+    public:
+	    virtual void route_impl() {
+		      unsigned int c_track = 1;
+		      std::list<ZNet*> nets = get_nets();
+		      for(std::list<ZNet*>::iterator i=nets.begin();i!=nets.end();++i,c_track=1) 
+			try_to_assign_net_to_track_if_not_try_next_track(*i,c_track);
+	      
+	    }
+
+	    bool try_to_assign_net_to_track_if_not_try_next_track(ZNet* net, unsigned int& track ) {
+		  //track++;
+		//return true;
+		  //std::cout << " Trying " << net->get_name() << " on track " << track << std::endl;
+		  
+		assert(net != 0);
+		
+		if ( track > CHANNEL_MAX ) return false;
+		
+		if ( check_can_be_assigned_on_track(net,track) ) {
+		  assign_net_to_track(net,track); 
+		  return true;
+		}
+		      
+		track++;	  
+		
+		return try_to_assign_net_to_track_if_not_try_next_track(net,track);
+	    }
+};
 
 
+//TODO
+class ZSchematicChannelRouter: public ZGreedyChannelRouter {
+    public:
+	    virtual void route_impl() {
+	    	      unsigned int c_track = 1;
+		      std::list<ZNet*> nets = get_nets();
+		      for(std::list<ZNet*>::iterator i=nets.begin();i!=nets.end();++i) 
+			try_to_assign_net_to_track_if_not_try_next_track(*i,c_track);
+	    }
+	    
 
+	private:
+	      //set<int> m_columns_visited;
+  
+};
+
+
+/*
+class ZLeftEdgeChannelRouter: public ZChannelRouter {
+    
+    public:
+	    virtual void route_impl() {
+		
+
+		  create_vcg();
+		  if ( m_graph->isCyclic() ) { 
+		      std::cout << "cycles found ,this algo can't route" << std::endl;
+		      return;
+		  }
+
+		  //bool 
+		  unsigned int c_track=1;
+		  while( ! is_done() ) {
+		      std::vector<ZNet*> nets = m_graph->get_top_nets();
+		      std::cout << "********************************** have " << nets.size() << " TOP nets to route" << std::endl;
+	      
+		      // not for list :/ 
+		      //std::sort(nets.begin(), nets.end(),comparator());
+		      //nets.sort(comparator());
+	 	      
+		      if( ! nets.size() ) break;
+		      
+		      for(std::vector<ZNet*>::iterator i=nets.begin();i!=nets.end();++i) {
+			  assert( *i );
+			  if ( try_to_assign(*i, c_track) ) 
+			    m_graph->decrease_refnums(*i);
+			  else
+			    m_graph->return_back(*i);
+		      }        
+
+		    c_track++;
+		}
+	      }
+
+	private:
+	      	void create_vcg() {
+		    m_graph = new Graph(get_nets().size());
+		    std::vector<ZTerm*>::iterator i;
+		    int j=0;
+		    for(i=bottom_terms.begin();i!=bottom_terms.end();++i,++j)
+		      if ( j<top_terms.size() && !(*i)->net()->get_name().empty() && !top_terms[j]->net()->get_name().empty() ) 
+			m_graph->addEdge((*i)->net(),top_terms[j]->net());
+			  //std::cout <<(*i)->net()->get_name()  << " " << top_terms[j]->net()->get_name() << " " << std::endl; 
+	      }
+
+	private:
+		Graph* m_graph;
+};
+*/
 
 #endif
