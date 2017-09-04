@@ -197,8 +197,8 @@ class ZRender //: public ZRenderBase
 		  SDL_Rect Message_rect; 
 		  Message_rect.x = p.x;  
 		  Message_rect.y = p.y; 
-		  Message_rect.w = 20; 
-		  Message_rect.h = 20; 
+		  Message_rect.w = 50; 
+		  Message_rect.h = 50; 
 
 		  SDL_RenderCopy(m_render, Message, NULL, &Message_rect); 
 		  

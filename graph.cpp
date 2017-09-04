@@ -67,7 +67,7 @@ void Graph::addEdge(ZNet* v, ZNet* w)
      int V = create_or_get_net2int_mapping(v);
      int W = create_or_get_net2int_mapping(w);
      
-     //std::cout << V << " " << W << " " << std::endl; 
+    //std::cout << V << " " << W << " " << std::endl; 
     adj[V].push_back(W); // Add w to vs list.
     fixme[W]++;
 }

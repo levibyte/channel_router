@@ -162,7 +162,9 @@ class ZChannelRouter
                 bottom_terms.push_back(t);
         }
         
-	bool has_confliscts(ZNet* n1, ZNet* n2) {
+	
+      public:
+	virtual bool has_confliscts(ZNet* n1, ZNet* n2) {
 	      unsigned int a1 = n1->get_closest_term()->col();
 	      unsigned int b1 = n1->get_farest_term()->col();
 	      
@@ -183,8 +185,7 @@ class ZChannelRouter
 	      //if ( b1 > b2 ) return ( a2 > a1 && a2 < b2 );
               return true;
 	}
-	
-      public:
+
 	bool check_can_be_assigned_on_track(ZNet* n, unsigned t) {
 	  std::vector<ZNet*> routed_nets = m_track2nets[t];
 	  std::vector<ZNet*>::iterator i;
@@ -230,8 +231,9 @@ class ZChannelRouter
 	    }
          }
 
-  private:
-    
+  //private:
+  //fixme
+  
          bool m_is_done;
 	 bool m_terms_stored;
 	 
@@ -251,7 +253,6 @@ class ZChannelRouter
 	 std::vector<ZTerm*> bottom_terms;
 	 
 };
-
 
 
 
@@ -300,23 +301,8 @@ class ZGreedyChannelRouter: public ZChannelRouter {
 
 
 //TODO
-class ZSchematicChannelRouter: public ZGreedyChannelRouter {
-    public:
-	    virtual void route_impl() {
-	    	      unsigned int c_track = 1;
-		      std::list<ZNet*> nets = get_nets();
-		      for(std::list<ZNet*>::iterator i=nets.begin();i!=nets.end();++i) 
-			try_to_assign_net_to_track_if_not_try_next_track(*i,c_track);
-	    }
-	    
-
-	private:
-	      //set<int> m_columns_visited;
-  
-};
 
 
-/*
 class ZLeftEdgeChannelRouter: public ZChannelRouter {
     
     public:
@@ -325,8 +311,8 @@ class ZLeftEdgeChannelRouter: public ZChannelRouter {
 
 		  create_vcg();
 		  if ( m_graph->isCyclic() ) { 
-		      std::cout << "cycles found ,this algo can't route" << std::endl;
-		      return;
+		      //std::cout << "cycles found ,this algo can't route" << std::endl;
+		      //return;
 		  }
 
 		  //bool 
@@ -360,13 +346,34 @@ class ZLeftEdgeChannelRouter: public ZChannelRouter {
 		    int j=0;
 		    for(i=bottom_terms.begin();i!=bottom_terms.end();++i,++j)
 		      if ( j<top_terms.size() && !(*i)->net()->get_name().empty() && !top_terms[j]->net()->get_name().empty() ) 
-			m_graph->addEdge((*i)->net(),top_terms[j]->net());
-			  //std::cout <<(*i)->net()->get_name()  << " " << top_terms[j]->net()->get_name() << " " << std::endl; 
+			m_graph->addEdge((*i)->net(),top_terms[j]->net()),
+			  std::cout <<(*i)->net()->get_name()  << " " << top_terms[j]->net()->get_name() << " " << std::endl; 
 	      }
 
 	private:
 		Graph* m_graph;
 };
-*/
+
+
+
+
+class ZSchematicChannelRouter: public ZLeftEdgeChannelRouter {
+    public:
+	  bool has_confliscts(ZNet* n1, ZNet* n2) { return true; }
+	  
+	  virtual void route_impl() {
+		      ZLeftEdgeChannelRouter::route_impl();
+		      
+	    	      //unsigned int c_track = 1;
+		      //std::list<ZNet*> nets = get_nets();
+		      //for(std::list<ZNet*>::iterator i=nets.begin();i!=nets.end();++i) 
+			//try_to_assign_net_to_track_if_not_try_next_track(*i,c_track);
+	    }
+	    
+
+	private:
+	      //set<int> m_columns_visited;
+  
+};
 
 #endif

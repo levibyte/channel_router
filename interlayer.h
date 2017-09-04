@@ -79,17 +79,20 @@ class ZInterLayer : public ZRender {
 
           
           void draw_term(ZTerm* t) {
-            //std::cout << " drawrect " <<  t->col() << "---" <<  t->row() << std::endl;
+              //std::cout << " drawterm " << t->name() << " : " << t->col() << "---" <<  t->row() << std::endl;
             //draw_rect(20*t->col()+20,100*t->row()+20, 10, 10);
               
               //TODO
               //draw_pin(t->get_pin_shape());
+	      
 	      
 	      int term_shape_rect_size = 3;
               draw_square(col_to_x(t->col()),row_to_y(!t->row()?0:m_router
               ->get_maxtracks()+1),term_shape_rect_size);
 	      //fixme term_size
 	      
+	      //fixme t owner inst
+	      //std::string (t->name()+t->)
 	      draw_text(t->name().c_str(),col_to_x(t->col()),row_to_y(!t->row()?0:m_router
               ->get_maxtracks()+1));
           }
