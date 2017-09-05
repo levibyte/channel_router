@@ -77,12 +77,24 @@ class ZRender //: public ZRenderBase
         }
         
         void draw_square(unsigned int y, unsigned int x, unsigned int delta) {
-          SDL_Rect rectToDraw = {x-delta,y-delta,2*delta,2*delta};
+          //SDL_Rect rectToDraw = {x-delta,y-delta,2*delta,2*delta};
+          //std::cout << rectToDraw.x << " " << rectToDraw.y << " " << rectToDraw.x+rectToDraw.w << " " << rectToDraw.y+rectToDraw.h << " " << std::endl;   
+          //SDL_RenderDrawRect(m_render,&rectToDraw);
+          //SDL_RenderFillRect(m_render, &rectToDraw);
+	 
+	 draw_rect(y,x,delta,delta);
+	  
+        }  
+
+        void draw_rect(unsigned int y, unsigned int x, unsigned int delta2, unsigned int delta1 ) {
+          //SDL_Rect rectToDraw = {x-delta1,y-delta2,delta1,delta2};
+	  SDL_Rect rectToDraw = {x,y,delta1,delta2};
+	  
           //std::cout << rectToDraw.x << " " << rectToDraw.y << " " << rectToDraw.x+rectToDraw.w << " " << rectToDraw.y+rectToDraw.h << " " << std::endl;   
           SDL_RenderDrawRect(m_render,&rectToDraw);
           SDL_RenderFillRect(m_render, &rectToDraw);
         }  
-        
+
         /*
         void draw_rect(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2) {
           SDL_Rect rectToDraw = {x1,y1,x2,y2};

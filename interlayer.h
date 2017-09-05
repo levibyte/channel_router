@@ -29,8 +29,10 @@ class ZInterLayer : public ZRender {
          }
          
          virtual void draw() {
-              draw_tracks();
-              draw_nets(); 
+              //draw_tracks();
+              //draw_nets(); 
+              
+              draw_insts();
               refresh();
           }
           
@@ -48,7 +50,20 @@ class ZInterLayer : public ZRender {
           }
 
   private:
-          void draw_tracks() {
+	  //fixme ? clever?
+          void draw_insts() {
+		  set_drawing_color(255,255,255);
+		  
+		  
+		  std::set<ZRef*> refs = ZRefManager::get()->get_refs();
+		  for ( std::set<ZRef*>::iterator r = refs.begin(); r!= refs.end(); ++r) {
+		    std::set<ZInst*> insts = (*r)->get_insts();
+		    for ( std::set<ZInst*>::iterator i = insts.begin(); i!= insts.end(); ++i ) 
+			draw_rect(col_to_x((*i)->col()),row_to_y((*i)->row()),col_to_x((*r)->w()),row_to_y((*r)->h()));
+		  }
+	  }
+	  
+	  void draw_tracks() {
               set_drawing_color(10,2,2);
               for(unsigned int i=m_router->get_maxtracks();i>0;i--) 
                 draw_line(0,row_to_y(i),400,row_to_y(i));

@@ -83,14 +83,16 @@ void automated_way(ZChannelRouter* router) {
 
 #include "example1.h"
 
+ZRefManager* ZRefManager::instance = 0;
+
 int main( int argc, char* args[] )
 {
 	
         //ZChannelRouter* router = new ZGreedyChannelRouter;
 	//ZChannelRouter* router = new ZSchematicChannelRouter;
-	ZChannelRouter* router = new ZLeftEdgeChannelRouter;
-	
-	
+	ZChannelRouter* router = 0;// new ZLeftEdgeChannelRouter;
+	//ZRefManager* ref_manager
+
         ZInterLayer il(router);
         
       
@@ -98,6 +100,7 @@ int main( int argc, char* args[] )
         //automated_way(router);
         route_schematic_design1(router);
 	  
+	
         il.start();    
         il.end();
         

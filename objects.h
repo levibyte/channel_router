@@ -4,6 +4,7 @@
 #include "connectivity.h"
 
 #include <cassert>
+#include <set>
 
 const int CHANNEL_MAX=30;
 enum ZTermOrientation { ZLowerTerm = CHANNEL_MAX, ZUpperTerm = 0  };
@@ -46,19 +47,51 @@ class ZTerm
 };
 
 
-
+class ZInst;
 struct ZRef
 {
       //fixme should be set
       virtual std::vector<ZTerm> get_terms() = 0;
+      virtual std::set<ZInst*> get_insts() = 0;
+	  
+      virtual void add_inst(ZInst* i) = 0;
+      virtual unsigned int w() = 0;
+      virtual unsigned int h() = 0;
+      
       virtual void place_term(ZTermType tt, const char* n,unsigned int r, unsigned int c) = 0;
 };
 
+class ZRefManager {
+    public:
+	  static ZRefManager* get() { 
+	    if(!instance) 
+	      instance = new ZRefManager; 
+	    return instance;
+	  }
+
+    public:
+	  void add_ref(ZRef* r) { m_refs.insert(r); }
+	  std::set<ZRef*> get_refs() { return m_refs; }
+    
+    private:
+	    std::set<ZRef*> m_refs;
+	    //std::set<ZInst*> m_inst; 
+    private:	  
+	 static ZRefManager* instance;
+};
+
+class ZInst;
 class ZSymbolRef : public ZRef
 {
     public:
-	  ZSymbolRef(const char* nm):m_name(nm) { }  
+	  ZSymbolRef(const char* nm, unsigned int w, unsigned int h):m_name(nm),m_h(h),m_w(w) { 
+	    ZRefManager::get()->add_ref(this);
+	    
+	  }  
 	  
+	  void add_inst(ZInst* i) {
+	    m_insts.insert(i);
+	  }
 	  void place_term(ZTermType tt, const char* n,unsigned int r, unsigned int fixmenotused) {
 		ZTermOrientation o;
 		(tt==ZInputTerm)?o=ZLowerTerm:o=ZUpperTerm;
@@ -71,10 +104,24 @@ class ZSymbolRef : public ZRef
 	      return m_terms;
 	  }
 	  
-    private:  
+	  std::set<ZInst*> get_insts() {
+	    return m_insts;
+	  }
+	
+	 unsigned int w() { return m_w; }
+	 unsigned int h() { return m_h; }
+	 
+	 
+      
+private:  
       
       std::string m_name;
       std::vector<ZTerm> m_terms; 
+      unsigned int m_h;
+      unsigned int m_w;
+      
+      std::set<ZInst*> m_insts;
+      
 };
 
 class ZInst
@@ -104,6 +151,7 @@ class ZInst
 
     public:
 	  ZInst(const char* n,ZRef* m, unsigned int c, unsigned int r):m_name(n),m_master(m),m_row(r),m_col(c) {
+	      m_master->add_inst(this);
 	      std::vector<ZTerm> terms = m->get_terms();
 	      std::cout << "terms" << n << "!" << terms.size() << std::endl;
 	      for (std::vector<ZTerm>::iterator i = terms.begin(); i!=terms.end(); ++i ) {
