@@ -90,7 +90,8 @@ int main( int argc, char* args[] )
 	
         //ZChannelRouter* router = new ZGreedyChannelRouter;
 	//ZChannelRouter* router = new ZSchematicChannelRouter;
-	ZChannelRouter* router = 0;// new ZLeftEdgeChannelRouter;
+	//ZChannelRouter* router = 0;// new ZLeftEdgeChannelRouter;
+	ZChannelRouter* router = new ZLeftEdgeChannelRouter;
 	//ZRefManager* ref_manager
 
         ZInterLayer il(router);

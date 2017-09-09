@@ -23,10 +23,11 @@ class ZNet
           }
           
           //fixme!
+          /*
           void add_term(ZInst::ZInstTerm* instterm) {
 	      assert(instterm);
 	      add_term(instterm->col(),instterm->term()->row()?ZLowerTerm:ZUpperTerm,instterm->term()->name().c_str());
-	  }
+	  }*/
           
           //fixme!
           ZTerm* add_term(unsigned int c, ZTermOrientation o, const char* n = "?") {

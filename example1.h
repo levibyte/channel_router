@@ -2,20 +2,20 @@
 #include "objects.h"
 
 void create_connection(ZChannelRouter* router, const char* netname, ZInst::ZInstTerm* it1, ZInst::ZInstTerm* it2) {
-    ZNet* net = new ZNet(netname);
-        net->add_term(it1);
-        net->add_term(it2);  
-    
-    router->add_net_to_route(net);
+//     ZNet* net = new ZNet(netname);
+//         net->add_term(it1);
+//         net->add_term(it2);  
+//     
+//     router->add_net_to_route(net);
 }
 
 void inst_tintirit (ZChannelRouter* router) {
   
     ZSymbolRef* aoi3 = new ZSymbolRef("AOI3",1,1);
-    //aoi3->place_term(ZInputTerm,"A",2,0);
-    //aoi3->place_term(ZInputTerm,"B",4,0);
-    //aoi3->place_term(ZInputTerm,"C",6,0);
-    //aoi3->place_term(ZOutputTerm,"Y",0,777);
+    aoi3->place_term(ZInputTerm,"A",2,0);
+    aoi3->place_term(ZInputTerm,"B",4,0);
+    aoi3->place_term(ZInputTerm,"C",6,0);
+    aoi3->place_term(ZOutputTerm,"Y",0,777);
     ZInst* i1 = new ZInst("AOI3_I1",aoi3,0,0);
     ZInst* i2 = new ZInst("AOI3_I2",aoi3,3,0);
     ZInst* i3 = new ZInst("AOI3_I3",aoi3,6,0);
@@ -26,21 +26,15 @@ void inst_tintirit (ZChannelRouter* router) {
     
     
     ZSymbolRef* xor6 = new ZSymbolRef("XOR6",5,5);
-    //xor6->place_term(ZInputTerm,"A",3,777);
-    //xor6->place_term(ZInputTerm,"B",1,777);
-    //xor6->place_term(ZInputTerm,"C",2,777);
-    //xor6->place_term(ZInputTerm,"D",3,777);
-    //xor6->place_term(ZInputTerm,"E",4,777);
-    //xor6->place_term(ZInputTerm,"F",5,777);   
-    //xor6->place_term(ZOutputTerm,"Y",8,1);
+    xor6->place_term(ZInputTerm,"A",3,777);
+    xor6->place_term(ZInputTerm,"B",1,777);
+    xor6->place_term(ZInputTerm,"C",2,777);
+    xor6->place_term(ZInputTerm,"D",3,777);
+    xor6->place_term(ZInputTerm,"E",4,777);
+    xor6->place_term(ZInputTerm,"F",5,777);   
+    xor6->place_term(ZOutputTerm,"Y",8,1);
     ZInst* i7 = new ZInst("XOR6_I7",xor6,2,10);
     ZInst* i8 = new ZInst("XOR6_I7",xor6,9,10);
-    
-    
-    
-    
-    
-    
     
     
     

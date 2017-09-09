@@ -14,7 +14,8 @@ enum ZTermType { ZInputTerm, ZOutputTerm };
 class ZTerm
 {
     public:
-            ZTerm(unsigned int col,ZTermOrientation orient,ZNet* net):m_colnum(col),m_orient(orient),m_owner_net(net) {
+            //ZTerm(ZTerm&)
+	    ZTerm(unsigned int col,ZTermOrientation orient,ZNet* net):m_colnum(col),m_orient(orient),m_owner_net(net) {
                 //std::cout << m_
             }
            
@@ -27,9 +28,11 @@ class ZTerm
             }
                  
             ZNet* net() { assert(m_owner_net); return  m_owner_net; }     
-            unsigned int col() { return m_colnum; }
-            unsigned int row() { return m_orient; }
-            std::string name() { return m_name; }
+            
+            virtual unsigned int col() { return m_colnum; }
+            virtual unsigned int row() { return m_orient; }
+            virtual std::string name() { return m_name; }
+            
             void set_name(const std::string& s) { 
 	      std::cout << " ZTERM: " << m_name << " -> " << s << std::endl;
 	      m_name = s;
@@ -51,7 +54,7 @@ class ZInst;
 struct ZRef
 {
       //fixme should be set
-      virtual std::vector<ZTerm> get_terms() = 0;
+      virtual std::vector<ZTerm*> get_terms() = 0;
       virtual std::set<ZInst*> get_insts() = 0;
 	  
       virtual void add_inst(ZInst* i) = 0;
@@ -95,12 +98,12 @@ class ZSymbolRef : public ZRef
 	  void place_term(ZTermType tt, const char* n,unsigned int r, unsigned int fixmenotused) {
 		ZTermOrientation o;
 		(tt==ZInputTerm)?o=ZLowerTerm:o=ZUpperTerm;
-		//ZTerm* t = new ZTerm(n,r,o);
-		ZTerm t(n,r,o);
+		ZTerm* t = new ZTerm(n,r,o);
+		//ZTerm t(n,r,o);
 		m_terms.push_back(t);  
 	  }
 	  
-	  std::vector<ZTerm> get_terms() {
+	  std::vector<ZTerm*> get_terms() {
 	      return m_terms;
 	  }
 	  
@@ -116,7 +119,7 @@ class ZSymbolRef : public ZRef
 private:  
       
       std::string m_name;
-      std::vector<ZTerm> m_terms; 
+      std::vector<ZTerm*> m_terms; 
       unsigned int m_h;
       unsigned int m_w;
       
@@ -128,44 +131,52 @@ class ZInst
 {
     public:
   
-      class ZInstTerm 
+      class ZInstTerm : public ZTerm
       {
 	  public:
-		ZInstTerm(ZInst* i,ZTerm* t):m_inst(i),m_term(t) { 
-		  //std::cout << "inst " << m_inst->name() << ":" << m_term->name() << std::endl;
-		  m_name = m_inst->name()+"/"+m_term->name();
+		ZInstTerm(ZInst* i,ZTerm* t):ZTerm(*t) 
+		{
+		  m_inst = i;
 		  
+		  //:ZTerm(m_inst->name()+"/"+m_term->name(), unsigned int col,ZTermOrientation orient):
+		  //m_inst(i),m_term(t) { 
+		  //std::cout << "inst " << m_inst->name() << ":" << m_term->name() << std::endl;
+		  m_name = m_inst->name()+"/"+ZTerm::name();
 		}
-		unsigned int col() { return inst()->col() + term()->col(); }
-		//unsigned int row() { return term()->row(); }
+		
+		
+		virtual unsigned int col() { return inst()->col() + ZTerm::col(); }
+		//virtual //unsigned int row() { return term()->row(); }
 	
-		std::string name() { return m_name; }
+		virtual std::string name() { return m_name; }
 		ZInst* inst() { return m_inst; }
-		ZTerm* term() { return m_term; }
+		//ZTerm* term() { return m_term; }
 		
 	  private:
 		ZInst* m_inst;
-		ZTerm* m_term;
+		//ZTerm* m_term;
 		std::string m_name;
       };
 
     public:
 	  ZInst(const char* n,ZRef* m, unsigned int c, unsigned int r):m_name(n),m_master(m),m_row(r),m_col(c) {
 	      m_master->add_inst(this);
-	      std::vector<ZTerm> terms = m->get_terms();
+	      
+	      std::vector<ZTerm*> terms = m->get_terms();
 	      std::cout << "terms" << n << "!" << terms.size() << std::endl;
-	      for (std::vector<ZTerm>::iterator i = terms.begin(); i!=terms.end(); ++i ) {
+	      for (std::vector<ZTerm*>::iterator i = terms.begin(); i!=terms.end(); ++i ) {
 		//fixme , ZTERM	
-		ZTerm* t = new ZTerm(*i);
-		ZInstTerm * inst_t = new ZInstTerm(this,t);
-		t->set_name(inst_t->name());
-		
+		//ZTerm* t = new ZTerm(*i);
+		ZInstTerm * inst_t = new ZInstTerm(this,*i);
+		//t->set_name(inst_t->name());
+		m_fixme_terms.push_back(inst_t);
 		//fixme lookup name
 		//std::cout << inst_t->name() << std::endl;
-		m_inst_terms[inst_t->name()] = inst_t;
+		//m_inst_terms[inst_t->name()] = inst_t;
 	      }
 	  }
 	  
+	  /*
 	  ZInstTerm* get_term(const char* n) {  
 	    //assert(m_inst_terms.find(n) )
 	    std::string nm(m_name+"/"+n);
@@ -174,6 +185,11 @@ class ZInst
 	    return m_inst_terms[nm.c_str()];
 	    
 	    assert(0);
+	  }*/
+	  
+	  std::list<ZTerm*> get_terms() {  
+	      return m_fixme_terms;
+	    
 	  }
 	  
 	  unsigned int col() { return m_col; }
@@ -186,8 +202,9 @@ class ZInst
 	  unsigned int m_col;
 	  ZRef* m_master;
 	  std::string m_name;
-	  
-	  std::map<std::string,ZInstTerm*> m_inst_terms;
+
+	  std::list<ZTerm*> m_fixme_terms;
+	  //std::map<std::string,ZInstTerm*> m_inst_terms;
 };
 
 

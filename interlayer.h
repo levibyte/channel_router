@@ -53,13 +53,14 @@ class ZInterLayer : public ZRender {
 	  //fixme ? clever?
           void draw_insts() {
 		  set_drawing_color(255,255,255);
-		  
-		  
+
 		  std::set<ZRef*> refs = ZRefManager::get()->get_refs();
 		  for ( std::set<ZRef*>::iterator r = refs.begin(); r!= refs.end(); ++r) {
 		    std::set<ZInst*> insts = (*r)->get_insts();
-		    for ( std::set<ZInst*>::iterator i = insts.begin(); i!= insts.end(); ++i ) 
+		    for ( std::set<ZInst*>::iterator i = insts.begin(); i!= insts.end(); ++i ) {
 			draw_rect(col_to_x((*i)->col()),row_to_y((*i)->row()),col_to_x((*r)->w()),row_to_y((*r)->h()));
+			draw_terms((*i)->get_terms());
+		    }
 		  }
 	  }
 	  
@@ -88,14 +89,15 @@ class ZInterLayer : public ZRender {
               std::list<ZTerm*>::const_iterator j; 
               for(j=terms.begin();j!=terms.end();++j) {
                 draw_term(*j);
-                draw_extensions(*j);
+                //draw_extensions(*j);
               }
           }
 
           
           void draw_term(ZTerm* t) {
-              //std::cout << " drawterm " << t->name() << " : " << t->col() << "---" <<  t->row() << std::endl;
-            //draw_rect(20*t->col()+20,100*t->row()+20, 10, 10);
+              assert(m_router);
+	      //std::cout << " drawterm " << t->name() << " : " << t->col() << "---" <<  t->row() << std::endl;
+	      //draw_rect(20*t->col()+20,100*t->row()+20, 10, 10);
               
               //TODO
               //draw_pin(t->get_pin_shape());
