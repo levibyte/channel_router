@@ -2,8 +2,10 @@
 #define renderer_h
 
 #include <SDL.h>
-#include <SDL_ttf.h>
 
+#ifdef TEXT_RENDER
+#include <SDL_ttf.h>
+#endif
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -109,13 +111,17 @@ class ZRender //: public ZRenderBase
 
 	SDL_Window* m_window;
 	SDL_Renderer* m_render;
-	TTF_Font* m_ttf_font;
 	
+	#ifdef TEXT_RENDER
+	TTF_Font* m_ttf_font;
+	#endif	
 
 	bool init(const char* title)
 	{
 	      bool success = true;
 	      
+		  #ifdef TEXT_RENDER
+
 	      if(!TTF_WasInit() && TTF_Init()==-1) {
 		  printf("TTF_Init: %s\n", TTF_GetError());
 		  exit(1);
@@ -126,7 +132,8 @@ class ZRender //: public ZRenderBase
 		printf("TTF_OpenFont: %s\n", TTF_GetError());
 		//exit(1);
 	      }
-      
+			
+		#endif	
 	      //Initialize SDL
 	      if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
 	      {
@@ -198,7 +205,8 @@ class ZRender //: public ZRenderBase
 
 	    void draw_text(const char* s, unsigned int y, unsigned int x)
 	    {
-		  
+		  #ifdef TEXT_RENDER
+
 		  SDL_Point p;
 		  p.x=x;
 		  p.y=y;
@@ -214,7 +222,7 @@ class ZRender //: public ZRenderBase
 
 		  SDL_RenderCopy(m_render, Message, NULL, &Message_rect); 
 		  
-	      
+		#endif		
 	    }
 
 

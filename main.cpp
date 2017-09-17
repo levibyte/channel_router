@@ -85,14 +85,18 @@ void automated_way(ZChannelRouter* router) {
 
 ZRefManager* ZRefManager::instance = 0;
 
+#ifdef OS_WINDOWS
+int WinMain( int argc, char* args[] )
+#else
 int main( int argc, char* args[] )
+#endif
 {
 	
-        //ZChannelRouter* router = new ZGreedyChannelRouter;
-	//ZChannelRouter* router = new ZSchematicChannelRouter;
-	//ZChannelRouter* router = 0;// new ZLeftEdgeChannelRouter;
-	ZChannelRouter* router = new ZLeftEdgeChannelRouter;
-	//ZRefManager* ref_manager
+		//ZChannelRouter* router = new ZGreedyChannelRouter;
+		//ZChannelRouter* router = new ZSchematicChannelRouter;
+		//ZChannelRouter* router = 0;// new ZLeftEdgeChannelRouter;
+		ZChannelRouter* router = new ZLeftEdgeChannelRouter;
+		//ZRefManager* ref_manager
 
         ZInterLayer il(router);
         
