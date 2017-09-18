@@ -146,7 +146,7 @@ class ZInst
 		
 		
 		virtual unsigned int col() { return inst()->col() + ZTerm::col(); }
-		//virtual //unsigned int row() { return term()->row(); }
+		virtual unsigned int row() { return inst()->row(); }
 	
 		virtual std::string name() { return m_name; }
 		ZInst* inst() { return m_inst; }
@@ -163,7 +163,7 @@ class ZInst
 	      m_master->add_inst(this);
 	      
 	      std::vector<ZTerm*> terms = m->get_terms();
-	      std::cout << "terms" << n << "!" << terms.size() << std::endl;
+	      //std::cout << "terms" << n << "!" << terms.size() << std::endl;
 	      for (std::vector<ZTerm*>::iterator i = terms.begin(); i!=terms.end(); ++i ) {
 		//fixme , ZTERM	
 		//ZTerm* t = new ZTerm(*i);

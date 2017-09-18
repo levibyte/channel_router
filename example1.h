@@ -11,30 +11,30 @@ void create_connection(ZChannelRouter* router, const char* netname, ZInst::ZInst
 
 void inst_tintirit (ZChannelRouter* router) {
   
-    ZSymbolRef* aoi3 = new ZSymbolRef("AOI3",1,1);
-    aoi3->place_term(ZInputTerm,"A",2,0);
-    aoi3->place_term(ZInputTerm,"B",4,0);
-    aoi3->place_term(ZInputTerm,"C",6,0);
-    aoi3->place_term(ZOutputTerm,"Y",0,777);
+    ZSymbolRef* aoi3 = new ZSymbolRef("AOI3",5,5);
+    aoi3->place_term(ZInputTerm,"A",5,0);
+//    aoi3->place_term(ZInputTerm,"B",4,0);
+//    aoi3->place_term(ZInputTerm,"C",6,0);
+    aoi3->place_term(ZOutputTerm,"Y",0,1);
     ZInst* i1 = new ZInst("AOI3_I1",aoi3,0,0);
-    ZInst* i2 = new ZInst("AOI3_I2",aoi3,3,0);
-    ZInst* i3 = new ZInst("AOI3_I3",aoi3,6,0);
-    ZInst* i4 = new ZInst("AOI3_I4",aoi3,9,0);	
-    ZInst* i5 = new ZInst("AOI3_I5",aoi3,12,0);
-    ZInst* i6 = new ZInst("AOI3_I6",aoi3,15,0);
+//     ZInst* i2 = new ZInst("AOI3_I2",aoi3,3,0);
+//     ZInst* i3 = new ZInst("AOI3_I3",aoi3,6,0);
+//     ZInst* i4 = new ZInst("AOI3_I4",aoi3,9,0);	
+//     ZInst* i5 = new ZInst("AOI3_I5",aoi3,12,0);
+//     ZInst* i6 = new ZInst("AOI3_I6",aoi3,15,0);
     
     
     
-    ZSymbolRef* xor6 = new ZSymbolRef("XOR6",5,5);
-    xor6->place_term(ZInputTerm,"A",3,777);
-    xor6->place_term(ZInputTerm,"B",1,777);
-    xor6->place_term(ZInputTerm,"C",2,777);
-    xor6->place_term(ZInputTerm,"D",3,777);
-    xor6->place_term(ZInputTerm,"E",4,777);
-    xor6->place_term(ZInputTerm,"F",5,777);   
-    xor6->place_term(ZOutputTerm,"Y",8,1);
-    ZInst* i7 = new ZInst("XOR6_I7",xor6,2,10);
-    ZInst* i8 = new ZInst("XOR6_I7",xor6,9,10);
+//    ZSymbolRef* xor6 = new ZSymbolRef("XOR6",5,5);
+//    xor6->place_term(ZInputTerm,"A",3,1);
+    //xor6->place_term(ZInputTerm,"B",1,1);
+    //xor6->place_term(ZInputTerm,"C",2,1);
+    //xor6->place_term(ZInputTerm,"D",3,1);
+    //xor6->place_term(ZInputTerm,"E",4,1);
+    //xor6->place_term(ZInputTerm,"F",5,1);   
+//    xor6->place_term(ZOutputTerm,"Y",8,1);
+ //   ZInst* i7 = new ZInst("XOR6_I7",xor6,2,10);
+    //ZInst* i8 = new ZInst("XOR6_I7",xor6,9,10);
     
     
     

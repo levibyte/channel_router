@@ -82,7 +82,7 @@ class ZRender //: public ZRenderBase
           //SDL_RenderDrawRect(m_render,&rectToDraw);
           //SDL_RenderFillRect(m_render, &rectToDraw);
 	 
-	 draw_rect(y,x,delta,delta);
+	 draw_rect(y-delta,x-delta,2*delta,2*delta);
 	  
         }  
 
@@ -209,8 +209,8 @@ class ZRender //: public ZRenderBase
 		  SDL_Rect Message_rect; 
 		  Message_rect.x = p.x;  
 		  Message_rect.y = p.y; 
-		  Message_rect.w = 50; 
-		  Message_rect.h = 50; 
+		  Message_rect.w = 80; 
+		  Message_rect.h = 40; 
 
 		  SDL_RenderCopy(m_render, Message, NULL, &Message_rect); 
 		  
