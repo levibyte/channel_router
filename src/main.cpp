@@ -28,7 +28,7 @@ return 0;
 }
 
 #ifdef OS_WINDOWS
-int WinMain( int argc, char* args[] )
+int WinMain( int argc, char* argv[] )
 {
 	//windows complains for undefinded symbol , this is stupid workaround
 	main(argc,argv);
