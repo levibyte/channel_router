@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include <set>
+#include <iostream>
 
 const int CHANNEL_MAX=30;
 enum ZTermOrientation { ZLowerTerm = CHANNEL_MAX, ZUpperTerm = 0  };
@@ -34,7 +35,7 @@ class ZTerm
             virtual std::string name() { return m_name; }
             
             void set_name(const std::string& s) { 
-	      std::cout << " ZTERM: " << m_name << " -> " << s << std::endl;
+	     // std::cout << " ZTERM: " << m_name << " -> " << s << std::endl;
 	      m_name = s;
 	      
 	    }
