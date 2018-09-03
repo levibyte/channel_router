@@ -37,7 +37,7 @@ class ZRender //: public ZRenderBase
 	//void* get_render() { return m_render; }
 	virtual void notify_mouse_pressed(unsigned int) = 0;
 	
-        virtual void enter_event_loop() {
+	virtual void enter_event_loop() {
                 unsigned int lastTime = 0, currentTime;
 // 
                 SDL_Event e;
@@ -45,18 +45,21 @@ class ZRender //: public ZRenderBase
                 while( !quit )
                 {
                         currentTime = SDL_GetTicks();
-                        if (currentTime > lastTime + 100) {
+                        if (currentTime > lastTime + 500) {
 
                             while( SDL_PollEvent( &e ) != 0 )
                             {
                                     if ( e.type == SDL_QUIT ) quit = true;
                                     if ( e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT ) notify_mouse_pressed(1);
-				    if ( e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_RIGHT ) notify_mouse_pressed(0);
+									if ( e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_RIGHT ) notify_mouse_pressed(0);
 				    
                                     //if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
                                     //if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_u) {
                             } 
                             
+							SDL_SetRenderDrawColor(m_render,0,0,0,255);
+							SDL_RenderClear( m_render );
+							SDL_SetRenderDrawColor(m_render,0,0,0,255);
                             draw();
                             //renderer.draw_rect(10,10,10,10);
                             lastTime = currentTime;  
@@ -84,13 +87,13 @@ class ZRender //: public ZRenderBase
           //SDL_RenderDrawRect(m_render,&rectToDraw);
           //SDL_RenderFillRect(m_render, &rectToDraw);
 	 
-	 draw_rect(y-delta,x-delta,2*delta,2*delta);
+			draw_rect(y-delta,x-delta,2*delta,2*delta);
 	  
         }  
 
         void draw_rect(unsigned int y, unsigned int x, unsigned int delta2, unsigned int delta1 ) {
           //SDL_Rect rectToDraw = {x-delta1,y-delta2,delta1,delta2};
-	  SDL_Rect rectToDraw = {x,y,delta1,delta2};
+			SDL_Rect rectToDraw = {x,y,delta1,delta2};
 	  
           //std::cout << rectToDraw.x << " " << rectToDraw.y << " " << rectToDraw.x+rectToDraw.w << " " << rectToDraw.y+rectToDraw.h << " " << std::endl;   
           SDL_RenderDrawRect(m_render,&rectToDraw);

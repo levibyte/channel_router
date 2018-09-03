@@ -17,6 +17,9 @@ class ZInterLayer : public ZRender {
   public:
          ZInterLayer (ZChannelRouter* ro):m_metalmode(false),m_router(ro) {
             //ZRenderer re(this) = m_renderer;
+			 m_render_multip = 50;
+			 m_render_const_factor = m_render_multip;
+			 m_render_const_delta =  m_render_multip;
             
          }
          
@@ -29,8 +32,8 @@ class ZInterLayer : public ZRender {
          }
          
          virtual void draw() {
-              //draw_tracks();
-              //draw_nets(); 
+              draw_tracks();
+              draw_nets(); 
               
               draw_insts();
               refresh();
@@ -89,7 +92,7 @@ class ZInterLayer : public ZRender {
               std::list<ZTerm*>::const_iterator j; 
               for(j=terms.begin();j!=terms.end();++j) {
                 draw_term(*j);
-                //draw_extensions(*j);
+                draw_extensions(*j);
               }
           }
 
@@ -154,11 +157,11 @@ class ZInterLayer : public ZRender {
 
   private:
          unsigned int col_to_x(unsigned int col) {
-            return 20*col+20;
+            return m_render_const_factor*col+m_render_const_delta;
          }
          
-         unsigned int row_to_y(unsigned int o) {
-           return 20*o+20;
+         unsigned int row_to_y(unsigned int row) {
+           return  m_render_const_factor*row+m_render_const_delta;
          }
          
 
@@ -216,7 +219,12 @@ class ZInterLayer : public ZRender {
       //ZRender m_renderer;
       ZChannelRouter* m_router;
       std::map<ZNet*, ZColor> m_net2color;
-
+		
+	  int m_render_const_factor;
+	  int m_render_const_delta;
+	  int m_render_multip;
+		
+	  
       bool m_metalmode;
 };
 
