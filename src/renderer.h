@@ -3,6 +3,7 @@
 
 #include <SDL.h>
 //#include <SDL2/src/core/android/SDL_android.h>
+#include <stdio.h>
 
 #ifdef TEXT_RENDER
 #include <SDL_ttf.h>
@@ -60,7 +61,7 @@ class ZRender //: public ZRenderBase
 									if ( e.type == SDL_MOUSEMOTION  ) 	{
                                         //SDL_Log("\nDesplazamiento x: %f desplazamiento y: %f.\n", e.motion.x, e.motion.y);
                                         //SDL_Log("workd");
-                                        check_select_active_object(e.motion.x, e.motion.y);
+                                                                            check_select_active_object(e.motion.x, e.motion.y);
 									}
                                     
 									if(e.type == SDL_MOUSEWHEEL)
@@ -75,10 +76,15 @@ class ZRender //: public ZRenderBase
 										}
 									}
 									//if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
-                                    //if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_u) {
-                            } 
+                                    if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_x) 
+                                         zoom_out();
+                                    
                             
-							//clear
+                                    
+                                    if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_z) 
+                                       zoom_in();  
+                            }
+                            			//clear
 							SDL_SetRenderDrawColor(m_render,0,0,0,255);
 							SDL_RenderClear( m_render );
 							SDL_SetRenderDrawColor(m_render,0,0,0,255);

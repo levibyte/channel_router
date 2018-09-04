@@ -21,11 +21,11 @@ class ZInterLayer : public ZRender {
 			 m_render_multip = 120;
 			 m_render_const_factor = m_render_multip;
 			 m_render_const_delta =  m_render_multip;
-             m_term_shape_rect_size = 15;
-             m_extension_point_radius = 10;
+                         m_term_shape_rect_size = 15;
+                         m_extension_point_radius = 10;
 			 m_active_term = 0;
-			 m_highlight_thickness = 15;
-			 m_rest_draw_dimmed = false;
+			 m_highlight_thickness = 10;
+			 m_draw_rest_dimmed = false;
 			 
              std::list<ZTerm*>::const_iterator j ;
              std::list<ZNet*> nets = m_router->get_nets();
@@ -51,16 +51,19 @@ class ZInterLayer : public ZRender {
 
         void check_for_term(float x, float y) {
             for(std::vector<ZTerm*>::iterator i=m_all_terms.begin();i!=m_all_terms.end();++i) {
-                if ( is_in_term_bounds(x,row_to_y((*i)->row())) && is_in_term_bounds(y,col_to_x((*i)->col())) ) {
-                    //std::cout << "Highlight term: " << (*i)->net()->get_name() << std::endl;
+                bool f = is_in_term_bounds(x,row_to_y((*i)->row()));
+                bool s = is_in_term_bounds(y,col_to_x((*i)->col()));
+                //std::cout << f << " " << s << std::endl;
+                if ( f && s ) {
+                ///std::cout << "Highlight term: " << (*i)->net()->get_name() << std::endl;
 					m_active_term = *i;
-					m_rest_draw_dimmed = true;
+					m_draw_rest_dimmed = true;
                     return;
                 }
-            }
+                }
 			m_active_term = 0;
-			m_rest_draw_dimmed = false;
-		}
+			m_draw_rest_dimmed = false;
+        }
 
 		void highlight_term(ZTerm* t) {
 			set_drawing_color(255,255,0);
@@ -75,7 +78,9 @@ class ZInterLayer : public ZRender {
 		}
 		
         bool is_in_term_bounds( int a ,  int  b) {
-            return ( (a < (b + m_term_shape_rect_size)) &&  (a > (b - m_term_shape_rect_size)) );
+            //std::cout << "---" << (a < (b + m_term_shape_rect_size))  << " - " <<  (a >= (b - m_term_shape_rect_size)) << std::endl;
+            return ( (a < (b + m_term_shape_rect_size)) &&  (a >= (b - m_term_shape_rect_size)) );
+            
 
         }
 
@@ -158,9 +163,9 @@ class ZInterLayer : public ZRender {
 			//std::cout << "drawing highlight with active term" << m_active_term << std::endl;
 			if (m_active_term) {
 				highlight_term(m_active_term);	
-				m_rest_draw_dimmed = false;
+				m_draw_rest_dimmed = false;
 				draw_individual_net(m_active_term->net());
-				m_rest_draw_dimmed = true;
+				m_draw_rest_dimmed = true;
 			}
 	  }
 
@@ -252,13 +257,14 @@ class ZInterLayer : public ZRender {
         struct ZColor { int r; int g; int b; };
 
 		ZColor get_net_color(ZNet* n) {
-			if(!m_rest_draw_dimmed) 
+			if(!m_draw_rest_dimmed) 
 				return m_net2color[n];
 
 			ZColor z_color;
-            z_color.r = m_net2color[n].r-128;
-            z_color.g = m_net2color[n].g-128;
-            z_color.b = m_net2color[n].b-128;   
+                        //changeSaturation(&z_color.r, &z_color.g,&z_color.b,0.5);
+                        z_color.r = 20;//m_net2color[n].r-128;
+                        z_color.g = 20;//_net2color[n].g-128;
+                        z_color.b = 20;//m_net2color[n].b-128;   
 
 			return z_color;	
 		}
@@ -273,6 +279,22 @@ class ZInterLayer : public ZRender {
             return z_color;
          }
 
+         
+#define  Pr  .299
+#define  Pg  .587
+#define  Pb  .114
+         void changeSaturation(int *R, int *G, int *B, double change) {
+
+            double  P=sqrt(
+            (*R)*(*R)*Pr+
+            (*G)*(*G)*Pg+
+            (*B)*(*B)*Pb ) ;
+
+            *R=P+((*R)-P)*change;
+            *G=P+((*G)-P)*change;
+            *B=P+((*B)-P)*change; 
+             
+        }
     
          /*
          int hash_get(const std::string& str){
@@ -324,7 +346,7 @@ class ZInterLayer : public ZRender {
         int m_term_shape_rect_size;
         int m_extension_point_radius;
 		int m_highlight_thickness;
-		bool m_rest_draw_dimmed;
+		bool m_draw_rest_dimmed;
 		
         std::vector<ZTerm*> m_all_terms;
 
