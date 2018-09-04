@@ -14,15 +14,18 @@ int main( int argc, char* args[] )
 {
 	
 	ZChannelRouter* router = new ZLeftEdgeChannelRouter;
-        ZInterLayer il(router);
-      	
-	//example1(router);
-        example2(router);
-        //example3(router);
+    //example1(router);
+    example2(router);
+    //example3(router);
         	
+	
+	//routing 	
 	router->route();
-        il.start();    
-        il.end();
+    
+	//rendering
+	ZInterLayer il(router);
+		il.start();    
+		il.end();
         
 return 0;
 }

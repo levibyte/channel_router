@@ -92,7 +92,7 @@ class ZNet
           bool is_first_term;
           
           std::list<ZTerm*> terms;
-	  unsigned int m_terms_count;
+	         unsigned int m_terms_count;
 	  
           std::string m_name;
 };

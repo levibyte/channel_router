@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <list>
+#include <vector>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -17,12 +18,90 @@ class ZInterLayer : public ZRender {
   public:
          ZInterLayer (ZChannelRouter* ro):m_metalmode(false),m_router(ro) {
             //ZRenderer re(this) = m_renderer;
-			 m_render_multip = 50;
+			 m_render_multip = 120;
 			 m_render_const_factor = m_render_multip;
 			 m_render_const_delta =  m_render_multip;
-            
+             m_term_shape_rect_size = 15;
+             m_extension_point_radius = 10;
+			 m_active_term = 0;
+			 m_highlight_thickness = 15;
+			 m_rest_draw_dimmed = false;
+			 
+             std::list<ZTerm*>::const_iterator j ;
+             std::list<ZNet*> nets = m_router->get_nets();
+             for(std::list<ZNet*>::iterator i=nets.begin();i!=nets.end();++i) {
+                 std::list<ZTerm *> terms = (*i)->get_terms();
+                 for (j = terms.begin(); j != terms.end(); ++j) {
+                     m_all_terms.push_back(*j);
+                 }
+             }
+			//std::cout << "All terms: " << m_all_terms.size() << std::endl;
+			//std::cout << "All nets: " << m_router->get_nets().size() << std::endl;
+			
+		 }
+
+
+         void check_select_active_object(float x, float y){
+                //set_drawing_color(10,2,2);
+                //draw_point(x,y, 50);
+
+               check_for_term(x, y);
          }
-         
+
+
+        void check_for_term(float x, float y) {
+            for(std::vector<ZTerm*>::iterator i=m_all_terms.begin();i!=m_all_terms.end();++i) {
+                if ( is_in_term_bounds(x,row_to_y((*i)->row())) && is_in_term_bounds(y,col_to_x((*i)->col())) ) {
+                    //std::cout << "Highlight term: " << (*i)->net()->get_name() << std::endl;
+					m_active_term = *i;
+					m_rest_draw_dimmed = true;
+                    return;
+                }
+            }
+			m_active_term = 0;
+			m_rest_draw_dimmed = false;
+		}
+
+		void highlight_term(ZTerm* t) {
+			set_drawing_color(255,255,0);
+			draw_square(col_to_x(t->col()),row_to_y(!t->row()?0:m_router->get_maxtracks()+1),m_term_shape_rect_size+m_highlight_thickness);
+			
+			
+			ZNet* n = (t)->net();
+			set_drawing_color(get_net_color(n).r,get_net_color(n).g,get_net_color(n).b);
+			draw_square(col_to_x(t->col()),row_to_y(!t->row()?0:m_router->get_maxtracks()+1),m_term_shape_rect_size);
+			
+			//std::cout << "TERM UNDER MOUSE" << std::endl;		
+		}
+		
+        bool is_in_term_bounds( int a ,  int  b) {
+            return ( (a < (b + m_term_shape_rect_size)) &&  (a > (b - m_term_shape_rect_size)) );
+
+        }
+
+         void zoom_in() {
+			 // TODO //FIXME do range check
+             m_render_const_factor /=2;
+             m_render_const_delta /=2;
+             m_term_shape_rect_size /=2;
+			 m_highlight_thickness /=2;
+             m_extension_point_radius /=2;
+         }
+
+        void zoom_out() {
+			 // TODO //FIXME do range check
+
+		m_render_const_factor *= 2;
+            m_render_const_delta *= 2;
+            m_term_shape_rect_size *= 2;
+            m_extension_point_radius *= 2;
+			m_highlight_thickness *=2;
+        }
+
+        void zoom_factor() {
+
+        }
+
          void start() {
               ZRender::enter_event_loop();
          }
@@ -31,20 +110,28 @@ class ZInterLayer : public ZRender {
               ZRender::close();
          }
          
+
          virtual void draw() {
-              draw_tracks();
+
+             //std::cout << "drawing" << std::endl;
+             //std::cerr << "drawing" << std::endl;
+             //SDL_Log("aaaa");
+
+			
+			  draw_tracks();
               draw_nets(); 
-              
               draw_insts();
+			  draw_highlights();
+
               refresh();
           }
           
          
-         virtual void notify_mouse_pressed(unsigned int btn) {
-	   if ( 1 == btn )  
-	     m_metalmode = false,change_colors();
-	   else
-	     m_metalmode = true;
+        virtual void notify_mouse_pressed(unsigned int btn) {
+             if ( 1 == btn )
+             m_metalmode = false,change_colors();
+                else
+             m_metalmode = true;
          }
           
           void change_colors() {
@@ -54,7 +141,7 @@ class ZInterLayer : public ZRender {
 
   private:
 	  //fixme ? clever?
-          void draw_insts() {
+      void draw_insts() {
 		  set_drawing_color(255,255,255);
 
 		  std::set<ZRef*> refs = ZRefManager::get()->get_refs();
@@ -66,29 +153,39 @@ class ZInterLayer : public ZRender {
 		    }
 		  }
 	  }
-	  
+	  		
+	  void draw_highlights() {
+			//std::cout << "drawing highlight with active term" << m_active_term << std::endl;
+			if (m_active_term) {
+				highlight_term(m_active_term);	
+				m_rest_draw_dimmed = false;
+				draw_individual_net(m_active_term->net());
+				m_rest_draw_dimmed = true;
+			}
+	  }
+
 	  void draw_tracks() {
               set_drawing_color(10,2,2);
               for(unsigned int i=m_router->get_maxtracks();i>0;i--) 
                 draw_line(0,row_to_y(i),400,row_to_y(i));
-          }
+      }
           
-          void draw_nets() {
+      void draw_nets() {
               std::list<ZNet*> nets = m_router->get_nets();
               for(std::list<ZNet*>::iterator i=nets.begin();i!=nets.end();++i) 
                 if(!(*i)->get_name().empty()) 
                   draw_individual_net(*i);  
-          }
+      }
           
-          void draw_individual_net(ZNet* net) {
+      void draw_individual_net(ZNet* net) {
               m_metalmode?set_drawing_color(255,255,0):pick_color_for_net(net);
               
               draw_terms(net->get_terms());
               if ( m_router->is_done() ) 
                 draw_routed_segments(net);
-          }
+      }
          
-          void draw_terms(const std::list<ZTerm*>& terms) {
+      void draw_terms(const std::list<ZTerm*>& terms) {
               std::list<ZTerm*>::const_iterator j; 
               for(j=terms.begin();j!=terms.end();++j) {
                 draw_term(*j);
@@ -98,30 +195,16 @@ class ZInterLayer : public ZRender {
 
           
           void draw_term(ZTerm* t) {
-              assert(m_router);
-	      //std::cout << " drawterm " << t->name() << " : " << t->col() << "---" <<  t->row() << std::endl;
-	      //draw_rect(20*t->col()+20,100*t->row()+20, 10, 10);
-              
-              //TODO
-              //draw_pin(t->get_pin_shape());
-	      
-	      
-	      int term_shape_rect_size = 3;
-              draw_square(col_to_x(t->col()),row_to_y(!t->row()?0:m_router
-              ->get_maxtracks()+1),term_shape_rect_size);
-	      //fixme term_size
-	      
-	      //fixme t owner inst
-	      //std::string (t->name()+t->)
-	      draw_text(t->name().c_str(),col_to_x(t->col()),row_to_y(!t->row()?0:m_router
-              ->get_maxtracks()+1));
+            assert(m_router);
+            draw_square(col_to_x(t->col()),row_to_y(!t->row()?0:m_router->get_maxtracks()+1),m_term_shape_rect_size);
+            draw_text(t->name().c_str(),col_to_x(t->col()),row_to_y(!t->row()?0:m_router->get_maxtracks()+1));
           }
 
           void draw_routed_segments(ZNet* n) {
               if (m_router->get_net_track(n))
-		draw_net_trunk_on_track(n);
-              //draw_extensions(n);
-              //draw_intersection_points();
+        		draw_net_trunk_on_track(n);
+                //draw_extensions(n);
+               // draw_intersection_points();
           }
           
           void draw_net_trunk_on_track(ZNet* n) {
@@ -130,11 +213,11 @@ class ZInterLayer : public ZRender {
               unsigned int c2 = n->get_farest_term()->col();
 
               if( !m_metalmode )
-		set_drawing_color(m_net2color[n].r,m_net2color[n].g,m_net2color[n].b);
+		        set_drawing_color(get_net_color(n).r,get_net_color(n).g,get_net_color(n).b);
               else
-		set_drawing_color(0,0,255);
+	        	set_drawing_color(0,0,255);
 		
-	      //draw_line(0,10*i+50,20+300,10*i+50);
+	             //draw_line(0,10*i+50,20+300,10*i+50);
 
               //std::cout << "Net:" << n->get_name() << " track:" << t << "  (" << c1 << "->" << c2 << ")" << std::endl;
               //20*t->col()+20,100*t->row()+20
@@ -150,13 +233,14 @@ class ZInterLayer : public ZRender {
               int tmp2 = row_to_y(m_router->get_net_track(t->net()));
               draw_line(col_to_x(t->col()),tmp1,col_to_x(t->col()),tmp2);
               if( t->net()->terms_count() > 2 )
-		draw_point(col_to_x(t->col()),tmp2,2);
+		        draw_point(col_to_x(t->col()),tmp2,m_extension_point_radius);
             }
          }
 
 
   private:
-         unsigned int col_to_x(unsigned int col) {
+         
+		 unsigned int col_to_x(unsigned int col) {
             return m_render_const_factor*col+m_render_const_delta;
          }
          
@@ -167,6 +251,19 @@ class ZInterLayer : public ZRender {
 
         struct ZColor { int r; int g; int b; };
 
+		ZColor get_net_color(ZNet* n) {
+			if(!m_rest_draw_dimmed) 
+				return m_net2color[n];
+
+			ZColor z_color;
+            z_color.r = m_net2color[n].r-128;
+            z_color.g = m_net2color[n].g-128;
+            z_color.b = m_net2color[n].b-128;   
+
+			return z_color;	
+		}
+		
+         
          ZColor get_rand_color() {
             ZColor z_color;
             z_color.r = rand()%255;
@@ -212,20 +309,26 @@ class ZInterLayer : public ZRender {
               m_net2color[n]=z_color;
             }
             
-            set_drawing_color(m_net2color[n].r,m_net2color[n].g,m_net2color[n].b);
+            set_drawing_color(get_net_color(n).r,get_net_color(n).g,get_net_color(n).b);
         }
 
   private:
-      //ZRender m_renderer;
-      ZChannelRouter* m_router;
-      std::map<ZNet*, ZColor> m_net2color;
+        //ZRender m_renderer;
+		ZTerm* m_active_term;
+        ZChannelRouter* m_router;
+        std::map<ZNet*, ZColor> m_net2color;
+
+        int m_render_const_factor;
+        int m_render_const_delta;
+        int m_render_multip;
+        int m_term_shape_rect_size;
+        int m_extension_point_radius;
+		int m_highlight_thickness;
+		bool m_rest_draw_dimmed;
 		
-	  int m_render_const_factor;
-	  int m_render_const_delta;
-	  int m_render_multip;
-		
-	  
-      bool m_metalmode;
+        std::vector<ZTerm*> m_all_terms;
+
+        bool m_metalmode;
 };
 
 #endif

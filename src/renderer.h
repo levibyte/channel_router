@@ -2,6 +2,7 @@
 #define renderer_h
 
 #include <SDL.h>
+//#include <SDL2/src/core/android/SDL_android.h>
 
 #ifdef TEXT_RENDER
 #include <SDL_ttf.h>
@@ -28,7 +29,7 @@ class ZRender //: public ZRenderBase
 
   public:
 	ZRender(){ //const char* title) {
-	   init("FIXME");
+	   init("Channel Routing Demo");
            SDL_RenderSetScale(m_render,1,1);
 
 	}
@@ -36,6 +37,10 @@ class ZRender //: public ZRenderBase
         virtual void draw()  = 0;
 	//void* get_render() { return m_render; }
 	virtual void notify_mouse_pressed(unsigned int) = 0;
+	virtual void check_select_active_object(float,float) = 0;
+	virtual void zoom_in() = 0;
+	virtual void zoom_out() = 0;
+	
 	
 	virtual void enter_event_loop() {
                 unsigned int lastTime = 0, currentTime;
@@ -45,22 +50,40 @@ class ZRender //: public ZRenderBase
                 while( !quit )
                 {
                         currentTime = SDL_GetTicks();
-                        if (currentTime > lastTime + 500) {
+                        if (currentTime > lastTime + 10) {
 
                             while( SDL_PollEvent( &e ) != 0 )
                             {
                                     if ( e.type == SDL_QUIT ) quit = true;
-                                    if ( e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT ) notify_mouse_pressed(1);
-									if ( e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_RIGHT ) notify_mouse_pressed(0);
-				    
-                                    //if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
+                                    //if ( e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT ) notify_mouse_pressed(1);
+									//if ( e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_RIGHT ) notify_mouse_pressed(0);
+									if ( e.type == SDL_MOUSEMOTION  ) 	{
+                                        //SDL_Log("\nDesplazamiento x: %f desplazamiento y: %f.\n", e.motion.x, e.motion.y);
+                                        //SDL_Log("workd");
+                                        check_select_active_object(e.motion.x, e.motion.y);
+									}
+                                    
+									if(e.type == SDL_MOUSEWHEEL)
+									{
+										if(e.wheel.y > 0) // scroll up
+										{
+											 zoom_out();
+										}
+										else if(e.wheel.y < 0) // scroll down
+										{
+											 zoom_in();
+										}
+									}
+									//if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
                                     //if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_u) {
                             } 
                             
+							//clear
 							SDL_SetRenderDrawColor(m_render,0,0,0,255);
 							SDL_RenderClear( m_render );
 							SDL_SetRenderDrawColor(m_render,0,0,0,255);
-                            draw();
+                            
+							draw();
                             //renderer.draw_rect(10,10,10,10);
                             lastTime = currentTime;  
                         }
@@ -77,8 +100,12 @@ class ZRender //: public ZRenderBase
 	  
 	}
 	
-	void set_drawing_color(int r, int g, int b) {
+		void set_drawing_color(int r, int g, int b) {
             SDL_SetRenderDrawColor(m_render,r,g,b,255);
+        }
+        
+		void set_drawing_color(SDL_Color c) {
+            SDL_SetRenderDrawColor(m_render,c.r,c.g,c.b,255);
         }
         
         void draw_square(unsigned int y, unsigned int x, unsigned int delta) {
@@ -99,6 +126,19 @@ class ZRender //: public ZRenderBase
           SDL_RenderDrawRect(m_render,&rectToDraw);
           SDL_RenderFillRect(m_render, &rectToDraw);
         }  
+
+		        
+		/*
+        void draw_highlight(unsigned int y, unsigned int x, unsigned int delta2, unsigned int delta1 ) {
+          //SDL_Rect rectToDraw = {x-delta1,y-delta2,delta1,delta2};
+			SDL_Rect rectToDraw = {x,y,delta1,delta2};
+			SDL_Rect rectToDraw = {x,y,delta1,delta2};
+			
+	  
+          //std::cout << rectToDraw.x << " " << rectToDraw.y << " " << rectToDraw.x+rectToDraw.w << " " << rectToDraw.y+rectToDraw.h << " " << std::endl;   
+          SDL_RenderDrawRect(m_render,&rectToDraw);
+          SDL_RenderFillRect(m_render, &rectToDraw);
+        }  */
 
         /*
         void draw_rect(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2) {

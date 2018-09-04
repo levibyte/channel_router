@@ -60,13 +60,14 @@ class ZChannelRouter
             store_term(t);
         }
     
-	void store_terms() {
-	      for(std::list<ZNet*>::iterator i=m_nets.begin();i!=m_nets.end();++i)
-		store_net_terms(*i); 
 
-	      //assert()
-	}
-	
+         void store_terms() {
+        for(std::list<ZNet*>::iterator i=m_nets.begin();i!=m_nets.end();++i)
+            store_net_terms(*i);
+
+        //assert()
+        }
+
         void route() {
 	    std::cout << " Nets to route: " << m_nets.size() << std::endl;
 	    m_is_done = false;
