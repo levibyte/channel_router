@@ -105,7 +105,7 @@ class ZInterLayer : public ZRender {
 			std::list<ZTerm*> all_terms = t->net()->get_terms();
 			for(std::list<ZTerm*>::iterator i=all_terms.begin();i!=all_terms.end();++i) {
 				//std::cout << "ARE:" << col_to_x((*i)->col()) << " " << row_to_y((*i)->row1()) << std::endl;
-				draw_square(col_to_x((*i)->col()),row_to_y((*i)->row1()),m_term_shape_rect_size+m_highlight_thickness);
+				draw_square(col_to_x((*i)->col()),row_to_y(!(*i)->row()?0:m_router->get_maxtracks()+1),m_term_shape_rect_size+m_highlight_thickness);
 			}
 			
 			ZNet* n = (t)->net();
@@ -127,8 +127,8 @@ class ZInterLayer : public ZRender {
 			 // TODO //FIXME do range check
              m_render_const_factor /=2;
              m_render_const_delta_x /=2;
-			 m_render_const_delta_y /=2;
-			 
+             m_render_const_delta_y /=2;
+                        
              m_term_shape_rect_size /=2;
 			 m_highlight_thickness /=2;
              m_extension_point_radius /=2;
@@ -178,10 +178,14 @@ class ZInterLayer : public ZRender {
           
          
         virtual void notify_mouse_pressed(unsigned int btn) {
-             if ( 1 == btn )
+            m_all_terms[rand()%m_all_terms.size()-1]->m_colnum = rand()%10;
+            /*
+            if ( 1 == btn )
              m_metalmode = false,change_colors();
                 else
              m_metalmode = true;
+            */
+            
          }
           
           void change_colors() {
@@ -305,11 +309,11 @@ class ZInterLayer : public ZRender {
 
  
 		void pan_left() {
-			m_render_const_delta_y*= 2;
+			m_render_const_delta_y/= 2;
 		}
 		
 		void pan_right() {
-			m_render_const_delta_y/= 2;
+			m_render_const_delta_y*= 2;
 			
 		}
 		
@@ -319,17 +323,17 @@ class ZInterLayer : public ZRender {
 		}
 		
 		void pan_up() {
-		    m_render_const_delta_x*= 2;		 
+		    m_render_const_delta_x/= 2;		 
 			
 		}
 		
  private:
          
-		 unsigned int col_to_x(unsigned int col) {
+         inline unsigned int col_to_x(unsigned int col) {
             return m_render_const_factor*col+m_render_const_delta_x;
          }
          
-         unsigned int row_to_y(unsigned int row) {
+         inline unsigned int row_to_y(unsigned int row) {
            return  m_render_const_factor*row+m_render_const_delta_y;
          }
          
@@ -342,9 +346,9 @@ class ZInterLayer : public ZRender {
 
 			ZColor z_color;
                         //changeSaturation(&z_color.r, &z_color.g,&z_color.b,0.5);
-                        z_color.r = m_net2color[n].r/3;
-                        z_color.g = m_net2color[n].g/3;
-                        z_color.b = m_net2color[n].b/3;   
+                        z_color.r = m_net2color[n].r/4;
+                        z_color.g = m_net2color[n].g/4;
+                        z_color.b = m_net2color[n].b/4;   
 
 			return z_color;	
 		}
@@ -360,21 +364,8 @@ class ZInterLayer : public ZRender {
          }
 
          
-#define  Pr  .299
-#define  Pg  .587
-#define  Pb  .114
-         void changeSaturation(int *R, int *G, int *B, double change) {
 
-            double  P=sqrt(
-            (*R)*(*R)*Pr+
-            (*G)*(*G)*Pg+
-            (*B)*(*B)*Pb ) ;
 
-            *R=P+((*R)-P)*change;
-            *G=P+((*G)-P)*change;
-            *B=P+((*B)-P)*change; 
-             
-        }
     
          /*
          int hash_get(const std::string& str){

@@ -44,7 +44,7 @@ class ZTerm
 	      
 	    }
             
-    private:
+    //private:
             unsigned int m_colnum;
             ZTermOrientation m_orient;
             ZNet* m_owner_net;

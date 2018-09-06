@@ -68,29 +68,29 @@ class ZRender //: public ZRenderBase
                             while( SDL_PollEvent( &e ) != 0 )
                             {
                                     if ( e.type == SDL_QUIT ) quit = true;
-                                    //if ( e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT ) notify_mouse_pressed(1);
-									//if ( e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_RIGHT ) notify_mouse_pressed(0);
-									if ( e.type == SDL_MOUSEMOTION  ) 	{
+                                    if ( e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT ) notify_mouse_pressed(1);
+                                    if ( e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_RIGHT ) notify_mouse_pressed(0);
+                                    if ( e.type == SDL_MOUSEMOTION  ) 	{
                                         //SDL_Log("\nDesplazamiento x: %f desplazamiento y: %f.\n", e.motion.x, e.motion.y);
                                         //SDL_Log("workd");
-                                        std::cout <<  e.motion.x << " " << e.motion.y << std::endl;                                    
-										check_select_active_object(e.motion.x, e.motion.y);
-										last_x = e.motion.x;
-										last_y = e.motion.y;
+                                        //std::cout <<  e.motion.x << " " << e.motion.y << std::endl;                                    
+                                        check_select_active_object(e.motion.x, e.motion.y);
+                                        last_x = e.motion.x;
+                                        last_y = e.motion.y;
 										
-									}
+                                    }
                                     
-									if(e.type == SDL_MOUSEWHEEL)
-									{
-										if(e.wheel.y > 0) // scroll up
-										{
-											 zoomout_to_point(last_y,last_x);
-										}
-										else if(e.wheel.y < 0) // scroll down
-										{
-											zoomin_to_point(last_y,last_x);
-										}
-									}
+                                    if(e.type == SDL_MOUSEWHEEL)
+                                    {
+                                            if(e.wheel.y > 0) // scroll up
+                                            {
+                                                        zoomout_to_point(last_y,last_x);
+                                            }
+                                            else if(e.wheel.y < 0) // scroll down
+                                            {
+                                                        zoomin_to_point(last_y,last_x);
+                                            }
+                                    }
 									//if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
                                     if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_x) 
                                          zoom_out();
