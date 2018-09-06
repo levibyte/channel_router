@@ -32,7 +32,11 @@ class ZTerm
             
             virtual unsigned int col() { return m_colnum; }
             virtual unsigned int row() { return m_orient; }
-            virtual std::string name() { return m_name; }
+			 //draw_square(col_to_x(t->col()),row_to_y(!t->row()?0:m_router->get_maxtracks()+1),m_term_shape_rect_size);
+			 
+			 virtual unsigned int row1() { return !row()?0:(CHANNEL_MAX+1); }
+
+			 virtual std::string name() { return m_name; }
             
             void set_name(const std::string& s) { 
 	     // std::cout << " ZTERM: " << m_name << " -> " << s << std::endl;

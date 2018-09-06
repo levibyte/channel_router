@@ -39,13 +39,25 @@ class ZRender //: public ZRenderBase
 	//void* get_render() { return m_render; }
 	virtual void notify_mouse_pressed(unsigned int) = 0;
 	virtual void check_select_active_object(float,float) = 0;
+	virtual void zoomin_to_point(float,float) = 0;
+	virtual void zoomout_to_point(float,float) = 0;
+	
+	
 	virtual void zoom_in() = 0;
 	virtual void zoom_out() = 0;
+	virtual void pan_left() = 0;
+	virtual void pan_right() = 0;
+	virtual void pan_up() = 0;
+	virtual void pan_down() = 0;
+	
+	
 	
 	
 	virtual void enter_event_loop() {
                 unsigned int lastTime = 0, currentTime;
-// 
+				unsigned int last_x = 0;
+				unsigned int last_y = 0 ;
+				
                 SDL_Event e;
                 bool quit = false;
                 while( !quit )
@@ -61,18 +73,22 @@ class ZRender //: public ZRenderBase
 									if ( e.type == SDL_MOUSEMOTION  ) 	{
                                         //SDL_Log("\nDesplazamiento x: %f desplazamiento y: %f.\n", e.motion.x, e.motion.y);
                                         //SDL_Log("workd");
-                                                                            check_select_active_object(e.motion.x, e.motion.y);
+                                        std::cout <<  e.motion.x << " " << e.motion.y << std::endl;                                    
+										check_select_active_object(e.motion.x, e.motion.y);
+										last_x = e.motion.x;
+										last_y = e.motion.y;
+										
 									}
                                     
 									if(e.type == SDL_MOUSEWHEEL)
 									{
 										if(e.wheel.y > 0) // scroll up
 										{
-											 zoom_out();
+											 zoomout_to_point(last_y,last_x);
 										}
 										else if(e.wheel.y < 0) // scroll down
 										{
-											 zoom_in();
+											zoomin_to_point(last_y,last_x);
 										}
 									}
 									//if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
@@ -82,7 +98,16 @@ class ZRender //: public ZRenderBase
                             
                                     
                                     if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_z) 
-                                       zoom_in();  
+                                       zoom_in(); 
+								   
+                                    if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_w) 
+                                       pan_up(); 
+                                    if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_s) 
+                                       pan_down(); 
+                                    if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_a) 
+                                       pan_left(); 
+                                    if ( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_d) 
+                                       pan_right(); 
                             }
                             			//clear
 							SDL_SetRenderDrawColor(m_render,0,0,0,255);
